@@ -1,0 +1,14 @@
+node_modules/
+.next/
+out/
+build/
+dist/
+.vercel/
+**/.git/
+.env*
+!.env.example
+storage/media/
+tmp/
+src/friends-foundation/
+tsconfig.tsbuildinfo
+npm-debug.log*
