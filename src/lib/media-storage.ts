@@ -2,7 +2,10 @@ import crypto from "node:crypto";
 import path from "node:path";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 
-const storageRoot = path.resolve(process.env.MEDIA_STORAGE_DIR || path.join(process.cwd(), "storage", "media"));
+const storageRoot = path.resolve(
+  process.env.MEDIA_STORAGE_DIR ||
+    (process.env.VERCEL ? path.join("/tmp", "storage", "media") : path.join(process.cwd(), "storage", "media"))
+);
 
 export async function saveMedia(bytes: Buffer, originalName: string): Promise<string> {
   const extension = path.extname(originalName).toLowerCase().replace(/[^.a-z0-9]/g, "").slice(0, 12);
