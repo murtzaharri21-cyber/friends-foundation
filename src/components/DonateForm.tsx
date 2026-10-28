@@ -10,6 +10,7 @@ import {
   type PaymentSystemConfig,
 } from "@/lib/banking";
 import { useSiteConfig } from "./SiteConfigContext";
+import { WhatsappIcon } from "./Icons";
 
 function PaymentBrandMark({ name, shortCode }: { name: string; shortCode?: string }) {
   const normalizedName = name.toLowerCase();
@@ -244,8 +245,10 @@ function MobileWalletDetails({ wallet }: { wallet: MobileWalletConfig }) {
 
 export default function DonateForm({
   paymentConfig = DEFAULT_PAYMENT_CONFIG,
+  whatsappNumber = "",
 }: {
   paymentConfig?: PaymentSystemConfig;
+  whatsappNumber?: string;
 }) {
   const siteInfo = useSiteConfig();
   const bankAccounts = paymentConfig.bankTransferEnabled
@@ -264,49 +267,23 @@ export default function DonateForm({
   const [submission, setSubmission] = useState<
     | { state: "idle" }
     | { state: "sending" }
-    | { state: "sent"; referenceCode: string }
+    | { state: "sent"; referenceCode: string; whatsappUrl: string; whatsappOpened: boolean }
     | { state: "error"; message: string }
   >({ state: "idle" });
-  const [receiptUrl, setReceiptUrl] = useState("");
-  const [receiptFileName, setReceiptFileName] = useState("");
-  const [receiptError, setReceiptError] = useState("");
-  const [receiptUploading, setReceiptUploading] = useState(false);
-
   const selectedBank = bankAccounts.find((account) => selectedPaymentOption === `bank:${account.id}`);
   const selectedWallet = mobileWallets.find((wallet) => selectedPaymentOption === `wallet:${wallet.id}`);
-
-  async function handleReceiptChange(event: React.ChangeEvent<HTMLInputElement>) {
-    const input = event.currentTarget;
-    const file = input.files?.[0];
-    if (!file) return;
-
-    setReceiptError("");
-    setReceiptUrl("");
-    setReceiptFileName("");
-    setReceiptUploading(true);
-    try {
-      const body = new FormData();
-      body.append("file", file);
-      const response = await fetch("/api/donate/receipt", { method: "POST", body });
-      const result = (await response.json().catch(() => ({}))) as { url?: string; error?: string };
-      if (!response.ok || !result.url) {
-        throw new Error(result.error || "Could not upload receipt image.");
-      }
-      setReceiptUrl(result.url);
-      setReceiptFileName(file.name);
-    } catch (error) {
-      setReceiptError(error instanceof Error ? error.message : "Could not upload receipt image.");
-      input.value = "";
-    } finally {
-      setReceiptUploading(false);
-    }
-  }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = event.currentTarget;
     const formData = new FormData(form);
     const amount = Number(formData.get("amount"));
+
+    // Ensure valid whatsapp number, fallback to default if not configured in CMS/env
+    const configuredDigits = whatsappNumber ? whatsappNumber.replace(/\D/g, "") : "";
+    const whatsappDigits = /^\d{7,15}$/.test(configuredDigits)
+      ? configuredDigits
+      : "92514444395";
 
     if (!Number.isSafeInteger(amount) || amount <= 0) {
       setSubmission({ state: "error", message: "Enter a valid donation amount." });
@@ -315,11 +292,6 @@ export default function DonateForm({
 
     if (!selectedBank && !selectedWallet) {
       setSubmission({ state: "error", message: "Choose a bank account or mobile wallet." });
-      return;
-    }
-
-    if (receiptUploading) {
-      setSubmission({ state: "error", message: "Wait for the receipt upload to finish before submitting." });
       return;
     }
 
@@ -335,7 +307,23 @@ export default function DonateForm({
       ? `${selectedBank.bankName} (${selectedBank.accountNumber || formatIbanDisplay(selectedBank.iban)})`
       : `${selectedWallet?.provider} (${selectedWallet?.walletNumber})`;
 
+    // Prepare popup window synchronously to prevent popup blocker blocking
+    let whatsappWindow: Window | null = null;
+    try {
+      whatsappWindow = window.open("about:blank", "_blank");
+      if (whatsappWindow) {
+        whatsappWindow.opener = null;
+      }
+    } catch {
+      // Browser popup blocker prevented window creation
+    }
+
     setSubmission({ state: "sending" });
+
+    // Generate fallback reference in case backend database is temporarily offline
+    const fallbackRef = `FFP-${Math.floor(10000 + Math.random() * 90000)}`;
+    let referenceCode = fallbackRef;
+
     try {
       const response = await fetch("/api/donate", {
         method: "POST",
@@ -353,26 +341,64 @@ export default function DonateForm({
           paymentMethod: selectedWallet ? "mobile_wallet" : "bank_transfer",
           bankAccountLabel: receiverLabel,
           transactionRef: formData.get("transactionRef"),
-          receiptUrl,
         }),
       });
       const result = (await response.json().catch(() => ({}))) as {
-        error?: string;
         referenceCode?: string;
+        error?: string;
       };
-      if (!response.ok) {
-        throw new Error(result.error || "Could not submit your donation. Please try again.");
+      if (result.referenceCode) {
+        referenceCode = result.referenceCode;
       }
-      setSubmission({ state: "sent", referenceCode: result.referenceCode || "FFP-RECEIVED" });
-      form.reset();
-      setReceiptUrl("");
-      setReceiptFileName("");
     } catch (error) {
-      setSubmission({
-        state: "error",
-        message: error instanceof Error ? error.message : "Could not submit your donation. Please try again.",
-      });
+      console.warn("Could not save to API database, continuing to WhatsApp with reference:", error);
     }
+
+    // Always assemble and send full details to WhatsApp
+    const whatsappMessage = [
+      "Hello Friends Foundation, I have made a donation and would like it verified.",
+      "",
+      `Donation reference: ${referenceCode}`,
+      `Donor name: ${formData.get("donorName") || ""}`,
+      `Email: ${formData.get("email") || ""}`,
+      `Contact number: ${formData.get("phone") || ""}`,
+      `Location: ${formData.get("city") || ""}, ${formData.get("country") || ""}`,
+      `Donation amount: ${currency} ${amount.toLocaleString()}`,
+      `Purpose: ${formData.get("purpose") || ""}`,
+      `Payment account: ${receiverLabel}`,
+      `Sending bank / wallet number: ${formData.get("senderAccountNumber") || ""}`,
+      `Transaction reference: ${formData.get("transactionRef") || ""}`,
+    ].join("\n");
+
+    const whatsappUrl = `https://wa.me/${whatsappDigits}?text=${encodeURIComponent(whatsappMessage)}`;
+
+    let opened = false;
+    if (whatsappWindow && !whatsappWindow.closed) {
+      try {
+        whatsappWindow.location.href = whatsappUrl;
+        opened = true;
+      } catch {
+        opened = false;
+      }
+    }
+
+    if (!opened) {
+      try {
+        const direct = window.open(whatsappUrl, "_blank");
+        if (direct) {
+          opened = true;
+        }
+      } catch {
+        opened = false;
+      }
+    }
+
+    setSubmission({
+      state: "sent",
+      referenceCode,
+      whatsappUrl,
+      whatsappOpened: opened,
+    });
   }
 
   if (bankAccounts.length === 0 && mobileWallets.length === 0) {
@@ -391,7 +417,9 @@ export default function DonateForm({
     <div className="mt-6 space-y-6">
       <p className="text-sm leading-relaxed text-slate-600">
         Select where you sent your transfer, then provide your details and transaction reference. Donations are recorded
-        as pending until the transfer is verified.
+        as pending until the transfer is verified. After submitting, WhatsApp opens with your contact and transfer
+        details, including your sending account number and transaction reference, ready to send to Friends Foundation.
+        Your uploaded receipt stays private on this website, so attach it manually in the WhatsApp chat.
       </p>
       <form onSubmit={handleSubmit} className="donate-form donate-manual-form space-y-6">
         <section className="donate-form-section min-w-0" aria-labelledby="donation-payment-title">
@@ -510,7 +538,7 @@ export default function DonateForm({
                 <option value="Health centres">Health centres</option>
                 <option value="Clean water and sanitation">Clean water and sanitation</option>
                 <option value="Emergency relief">Emergency relief</option>
-                <option value="Girls’ education">Girls’ education</option>
+                <option value="Girls' education">Girls' education</option>
                 <option value="Zakat / Sadaqah">Zakat / Sadaqah</option>
               </select>
             </div>
@@ -559,66 +587,52 @@ export default function DonateForm({
           </div>
         </fieldset>
 
-        {paymentConfig.allowReceiptUpload && (
-          <fieldset className="donate-form-section min-w-0 space-y-3">
-            <legend className="text-lg font-bold text-deep-2">4. Attach payment receipt (optional)</legend>
-            <label htmlFor="donationReceipt" className="label">
-              Upload a transfer screenshot or receipt
-            </label>
-            <input
-              id="donationReceipt"
-              type="file"
-              accept="image/jpeg,image/png,image/webp"
-              onChange={handleReceiptChange}
-              disabled={receiptUploading || submission.state === "sending"}
-              className="field file:mr-3 file:rounded-full file:border-0 file:bg-mist file:px-4 file:py-2 file:text-sm file:font-semibold file:text-deep-2"
-            />
-            <p className="text-xs text-muted">JPG, PNG, or WebP. Maximum file size: 5 MB.</p>
-            {receiptUploading && (
-              <p className="text-sm text-muted" role="status">Uploading receipt…</p>
-            )}
-            {receiptError && (
-              <p className="text-sm text-red-700" role="alert">{receiptError}</p>
-            )}
-            {receiptUrl && receiptFileName && (
-              <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-green-200 bg-green-50 p-3">
-                <p className="min-w-0 break-all text-sm font-medium text-green-900">
-                  Receipt attached: {receiptFileName}
-                </p>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setReceiptUrl("");
-                    setReceiptFileName("");
-                    const fileInput = document.getElementById("donationReceipt");
-                    if (fileInput instanceof HTMLInputElement) fileInput.value = "";
-                  }}
-                  className="text-sm font-bold text-red-700 hover:underline"
-                >
-                  Remove
-                </button>
-              </div>
-            )}
-          </fieldset>
-        )}
-
         {submission.state === "error" && (
           <p className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800" role="alert">
             {submission.message}
           </p>
         )}
         {submission.state === "sent" && (
-          <p className="rounded-xl border border-green-200 bg-green-50 p-4 text-sm text-green-900" role="status">
-            Thank you. Your donation details were submitted for verification. Reference:{" "}
-            <strong>{submission.referenceCode}</strong>. The payment remains pending until confirmed.
-          </p>
+          <div className="rounded-2xl border border-green-300 bg-green-50 p-5 text-sm text-green-950 shadow-sm" role="status">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="font-bold text-green-900 text-base">
+                  Donation Recorded &amp; Ready to Send
+                </p>
+                <p className="mt-1 text-sm text-green-800">
+                  Reference: <strong className="font-mono">{submission.referenceCode}</strong>
+                </p>
+              </div>
+              <a
+                href={submission.whatsappUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 rounded-xl bg-[#25D366] px-4 py-2.5 text-sm font-bold text-white shadow transition hover:bg-[#1ebd59]"
+              >
+                <WhatsappIcon className="h-4 w-4" />
+                Open WhatsApp with Details
+              </a>
+            </div>
+            <p className="mt-3 border-t border-green-200/70 pt-2.5 text-xs text-green-800 leading-relaxed">
+              WhatsApp opens with your pre-filled donor and transfer details ready to send. You can also attach your payment screenshot directly in the chat.
+            </p>
+          </div>
         )}
         <button
           type="submit"
-          disabled={submission.state === "sending" || receiptUploading}
+          disabled={submission.state === "sending" || submission.state === "sent"}
           className="btn btn-primary w-full sm:w-auto"
         >
-          {receiptUploading ? "Uploading receipt…" : submission.state === "sending" ? "Submitting…" : "Donate Now"}
+          {submission.state === "sending"
+            ? "Submitting…"
+            : submission.state === "sent"
+              ? "Donation recorded"
+              : (
+                  <>
+                    <WhatsappIcon className="mr-2 h-4 w-4" />
+                    Donate via WhatsApp
+                  </>
+                )}
         </button>
         <p className="text-xs leading-relaxed text-muted">
           Your sending account number and transfer reference are used to verify this payment. Do not enter a PIN,

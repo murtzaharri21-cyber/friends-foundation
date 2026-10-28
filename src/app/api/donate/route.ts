@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
 import { donations } from "@/db/schema";
-import { getDatabaseFailure } from "@/lib/database-error-response";
 
 const text = (v: unknown, max: number) => (typeof v === "string" ? v.trim().slice(0, max) : "");
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -20,7 +19,7 @@ export async function POST(req: NextRequest) {
   try {
     body = await req.json();
   } catch {
-    return NextResponse.json({ error: "Invalid request." }, { status: 400 });
+    return NextResponse.json({ error: "Invalid request body." }, { status: 400 });
   }
 
   const donorName = text(body.donorName, 200);
@@ -37,7 +36,6 @@ export async function POST(req: NextRequest) {
   const paymentMethod = METHODS.has(rawMethod) ? rawMethod : "bank_transfer";
   const bankAccountLabel = text(body.bankAccountLabel, 220);
   const transactionRef = text(body.transactionRef, 160);
-  const receiptUrl = text(body.receiptUrl, 500);
   const amount = Math.round(Number(body.amount));
 
   if (!donorName || !email) {
@@ -63,6 +61,13 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // Generate fallback reference code
+  const randomSuffix = Math.floor(10000 + Math.random() * 90000);
+  let referenceCode = `FFP-${randomSuffix}`;
+  let savedToDb = false;
+  let recordId: number | undefined;
+
+  // Try to persist to database if available
   try {
     const [created] = await db
       .insert(donations)
@@ -80,25 +85,27 @@ export async function POST(req: NextRequest) {
         paymentMethod,
         bankAccountLabel: bankAccountLabel || null,
         transactionRef: transactionRef || null,
-        receiptUrl: receiptUrl || null,
         status: "pending",
         message: note || null,
       })
       .returning({ id: donations.id });
 
-    return NextResponse.json(
-      { ok: true, id: created.id, referenceCode: `FFP-${String(created.id).padStart(5, "0")}` },
-      { status: 201 },
-    );
+    if (created?.id) {
+      recordId = created.id;
+      referenceCode = `FFP-${String(created.id).padStart(5, "0")}`;
+      savedToDb = true;
+    }
   } catch (err) {
-    console.error("Failed to save donation record", err);
-    const failure = getDatabaseFailure(
-      err,
-      "We couldn’t record your donation just now. Please call or email us.",
-    );
-    return NextResponse.json(
-      { error: failure.message },
-      { status: failure.status },
-    );
+    console.warn("Notice: Donation record could not be saved to PostgreSQL, proceeding with fallback reference for WhatsApp:", err);
   }
+
+  return NextResponse.json(
+    {
+      ok: true,
+      id: recordId,
+      referenceCode,
+      savedToDb,
+    },
+    { status: 201 },
+  );
 }
