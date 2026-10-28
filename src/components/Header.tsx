@@ -67,7 +67,7 @@ export default function Header() {
                   alt={siteInfo.name}
                   width={215}
                   height={70}
-                  className="h-[46px] w-auto object-contain"
+                  className="h-[52px] w-auto object-contain sm:h-[62px]"
                 />
               </Link>
 
@@ -90,7 +90,7 @@ export default function Header() {
                           {item.children && <ChevronDownIcon className="h-3.5 w-3.5 opacity-55" />}
                         </Link>
                         {item.children && (
-                          <div className="invisible absolute left-0 top-full z-50 w-72 pt-2 opacity-0 transition duration-150 group-focus-within:visible group-focus-within:opacity-100 group-hover:visible group-hover:opacity-100">
+                          <div className="invisible absolute left-0 top-full z-50 w-72 pt-2 opacity-0 transform translate-y-1 transition-all duration-200 ease-out group-focus-within:visible group-focus-within:opacity-100 group-focus-within:translate-y-0 group-hover:visible group-hover:opacity-100 group-hover:translate-y-0">
                             <div className="overflow-hidden rounded-[18px] border border-line bg-white py-2 shadow-[0_24px_48px_rgba(44,117,165,0.16)]">
                               {item.children.map((child) => (
                                 <Link

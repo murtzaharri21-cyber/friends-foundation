@@ -3,6 +3,7 @@ import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import PageHeader from "@/components/PageHeader";
+import FaqAccordion from "@/components/FaqAccordion";
 import { CheckIcon } from "@/components/Icons";
 import { ImpactStatIcon, type StatIconName } from "@/components/ImpactStatsBand";
 import { accomplishments, gateways, img, meStages, otherAccomplishments, principles, regions } from "@/lib/content";
@@ -177,6 +178,52 @@ export default async function HowWeWorkPage() {
                 </li>
               ))}
             </ul>
+          </div>
+        </section>
+
+        {/* Programme Delivery & Accountability Accordion */}
+        <section className="border-t border-line bg-mist/50 py-16 md:py-22">
+          <div className="container-ff">
+            <div className="mx-auto mb-10 max-w-2xl text-center">
+              <span className="eyebrow eyebrow-blue">Methodology &amp; Standards</span>
+              <h2 className="mt-2 text-3xl font-bold tracking-tight text-deep-2 md:text-4xl">
+                Implementation &amp; Safeguards
+              </h2>
+              <p className="mt-3 text-[1.05rem] text-slate-600">
+                Explore how we mobilize communities, guarantee asset durability, and satisfy stringent institutional audit standards.
+              </p>
+            </div>
+
+            <div className="mx-auto max-w-3xl">
+              <FaqAccordion
+                items={[
+                  {
+                    category: "Community Ownership",
+                    question: "How does social mobilisation prevent dependency?",
+                    answer:
+                      "Before initiating any capital project, we form community-based Village Development Committees (VDCs) and Water Management Committees. Local residents co-design the project, contribute local in-kind support, and appoint caretakers. This transforms passive recipients into active asset custodians.",
+                  },
+                  {
+                    category: "Asset Handover",
+                    question: "What happens when a project grant ends?",
+                    answer:
+                      "Assets are formally handed over to trained local management committees with an established maintenance fund, local supply-chain links for spare parts, and established linkages to local government departments (such as WASA, Public Health Engineering, or District Health authorities).",
+                  },
+                  {
+                    category: "Procurement & Auditing",
+                    question: "How are contractors and procurement managed?",
+                    answer:
+                      "All procurement adheres to strict competitive bidding guidelines, third-party technical verifications, and anti-corruption safeguards. Every financial transaction is reconciled against verified delivery invoices and subject to annual external audits.",
+                  },
+                  {
+                    category: "Institutional Partnerships",
+                    question: "How do international and multilateral agencies partner with us?",
+                    answer:
+                      "Friends Foundation holds valid EAD NOCs and Category 'A' status, enabling seamless partnership with international development organizations (including past work with UNDP, UNICEF, WHO, USAID, Save the Children, and FPAP). We adhere to global Core Humanitarian Standards (CHS) and strict child-safeguarding policies.",
+                  },
+                ]}
+              />
+            </div>
           </div>
         </section>
 

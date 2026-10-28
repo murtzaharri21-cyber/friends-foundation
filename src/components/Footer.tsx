@@ -17,11 +17,11 @@ export default async function Footer() {
   const { siteInfo } = await getSiteCms();
 
   return (
-    <footer className="mt-20 bg-deep text-white/75">
+    <footer className="mt-20 bg-brand text-white/90">
       <div className="container-ff grid gap-10 py-14 md:grid-cols-2 lg:grid-cols-12 lg:py-16">
         <div className="lg:col-span-4">
           <Link href="/" className="inline-block rounded-2xl bg-white px-3.5 py-2.5">
-            <img src={siteInfo.logo} alt={siteInfo.name} width={215} height={70} className="h-11 w-auto object-contain" />
+            <img src={siteInfo.logo} alt={siteInfo.name} width={215} height={70} className="h-14 w-auto object-contain" />
           </Link>
           <p className="mt-5 max-w-sm text-[15.5px] leading-relaxed">{siteInfo.footerSummary}</p>
           <p className="mt-4 max-w-sm text-[13.5px] leading-relaxed text-white/55">{siteInfo.registrationLine}</p>
@@ -35,7 +35,10 @@ export default async function Footer() {
           <ul className="mt-4 space-y-2 text-[15px]">
             {areaLinks.map((a) => (
               <li key={a.slug}>
-                <Link href={`/our-work/${a.slug}`} className="hover:text-white">
+                <Link
+                  href={`/our-work/${a.slug}`}
+                  className="inline-block transition-all duration-200 hover:translate-x-1.5 hover:text-white"
+                >
                   {a.title}
                 </Link>
               </li>
@@ -48,7 +51,10 @@ export default async function Footer() {
           <ul className="mt-4 space-y-2 text-[15px]">
             {orgLinks.map((l) => (
               <li key={l.href}>
-                <Link href={l.href} className="hover:text-white">
+                <Link
+                  href={l.href}
+                  className="inline-block transition-all duration-200 hover:translate-x-1.5 hover:text-white"
+                >
                   {l.label}
                 </Link>
               </li>
@@ -90,7 +96,7 @@ export default async function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={s.name}
-                className="grid h-9 w-9 place-items-center rounded-full border border-white/20 hover:border-brand-soft hover:text-white"
+                className="grid h-9 w-9 place-items-center rounded-full border border-white/20 transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-soft hover:bg-white/10 hover:text-white"
               >
                 <SocialIcon name={s.name} />
               </a>
@@ -99,8 +105,8 @@ export default async function Footer() {
         </div>
       </div>
 
-      <div className="border-t border-white/10 bg-deep-2">
-        <div className="container-ff flex flex-col gap-1 py-5 text-[13.5px] text-white/50 sm:flex-row sm:items-center sm:justify-between">
+      <div className="border-t border-white/15 bg-[#205d80]">
+        <div className="container-ff flex flex-col gap-1 py-5 text-[13.5px] text-white/75 sm:flex-row sm:items-center sm:justify-between">
           <p>© {new Date().getFullYear()} {siteInfo.name}. All rights reserved.</p>
           <p>Health · Clean water · Education · Women’s rights · Emergency relief</p>
         </div>

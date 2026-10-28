@@ -3,6 +3,7 @@ import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import PageHeader from "@/components/PageHeader";
+import FaqAccordion from "@/components/FaqAccordion";
 import { ArrowRightIcon } from "@/components/Icons";
 import { ImpactStatIcon } from "@/components/ImpactStatsBand";
 import { img } from "@/lib/content";
@@ -263,6 +264,52 @@ export default async function HelpPage() {
                 />
                 <figcaption className="mt-2 text-[13px] text-muted">Rawalpindi · Friends Foundation field archive</figcaption>
               </figure>
+            </div>
+          </div>
+        </section>
+
+        {/* Giving & Donation Accordion */}
+        <section className="border-t border-line bg-white py-16 md:py-22">
+          <div className="container-ff">
+            <div className="mx-auto mb-10 max-w-2xl text-center">
+              <span className="eyebrow eyebrow-blue">Giving Guide</span>
+              <h2 className="mt-2 text-3xl font-bold tracking-tight text-deep-2 md:text-4xl">
+                Giving &amp; Donation Questions
+              </h2>
+              <p className="mt-3 text-[1.05rem] text-slate-600">
+                Clear answers regarding payment verification, Zakat separation, sponsorship, and receipts.
+              </p>
+            </div>
+
+            <div className="mx-auto max-w-3xl">
+              <FaqAccordion
+                items={[
+                  {
+                    category: "Verification",
+                    question: "How do I verify my donation via WhatsApp?",
+                    answer:
+                      "After submitting your transfer on the Donate page, click the 'Donate via WhatsApp' button. Your WhatsApp chat will open with pre-filled details (Reference code, donor name, amount, bank account). Simply press Send and attach your payment receipt screenshot. Our finance desk verifies the transfer and sends you an acknowledgment.",
+                  },
+                  {
+                    category: "Zakat",
+                    question: "How is Zakat handled and separated?",
+                    answer:
+                      "Friends Foundation maintains a dedicated, Shariah-compliant Zakat account at Habib Bank Limited (HBL). 100% of Zakat funds are disbursed directly to eligible families for urgent medical care, child healthcare, essential medicines, and emergency survival needs.",
+                  },
+                  {
+                    category: "International",
+                    question: "Can overseas donors donate in USD, GBP, or EUR?",
+                    answer:
+                      "Yes! We accept international bank wires (SWIFT), Wise transfers, and Remitly direct remittances into our verified foreign currency accounts approved by the Economic Affairs Division (EAD). All account numbers, IBANs, and SWIFT BIC codes are listed on our Donate page.",
+                  },
+                  {
+                    category: "Sponsorship",
+                    question: "Can I sponsor a specific community project?",
+                    answer:
+                      "Yes. Individuals, families, and corporations can sponsor a complete hand pump, water filtration plant, mobile clinic camp, or community school. We provide project inception reports, geo-tagged photos, beneficiary registries, and formal handover documentation upon completion.",
+                  },
+                ]}
+              />
             </div>
           </div>
         </section>

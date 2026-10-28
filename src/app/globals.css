@@ -68,6 +68,10 @@
   [id] {
     scroll-margin-top: 120px;
   }
+  :where(a, button, summary) {
+    transition-duration: 180ms;
+    transition-timing-function: ease;
+  }
   ::selection {
     background: var(--color-brand-bright);
     color: #fff;
@@ -100,19 +104,29 @@
     font-size: 0.98rem;
     line-height: 1.2;
     border: 1px solid transparent;
-    transition: transform 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease,
-      color 0.18s ease, border-color 0.18s ease;
+    transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.22s ease,
+      color 0.22s ease, border-color 0.22s ease;
   }
   .btn:hover {
-    transform: translateY(-1px);
+    transform: translateY(-2px);
+  }
+  .btn:active {
+    transform: translateY(1px) scale(0.99);
+  }
+  .btn svg {
+    transition: transform 0.22s ease;
+  }
+  .btn:hover svg {
+    transform: translateX(3px);
   }
   .btn-primary {
     background: linear-gradient(135deg, var(--color-brand) 0%, var(--color-brand-bright) 100%);
     color: #fff;
-    box-shadow: var(--shadow-btn);
+    box-shadow: 0 10px 24px rgba(44, 117, 165, 0.22);
   }
   .btn-primary:hover {
     background: linear-gradient(135deg, var(--color-deep) 0%, var(--color-brand) 100%);
+    box-shadow: 0 14px 30px rgba(44, 117, 165, 0.32);
   }
   .btn-accent {
     background: linear-gradient(135deg, var(--color-brand) 0%, var(--color-brand-bright) 100%);
@@ -121,14 +135,16 @@
   }
   .btn-accent:hover {
     background: linear-gradient(135deg, var(--color-deep) 0%, var(--color-brand) 100%);
+    box-shadow: 0 14px 30px rgba(44, 117, 165, 0.32);
   }
   .btn-donation {
     background: linear-gradient(135deg, var(--color-accent-dark) 0%, var(--color-accent) 100%);
     color: #fff;
-    box-shadow: 0 16px 36px rgba(211, 34, 34, 0.22);
+    box-shadow: 0 16px 36px rgba(211, 34, 34, 0.24);
   }
   .btn-donation:hover {
-    background: var(--color-accent-dark);
+    background: linear-gradient(135deg, #a81b1b 0%, #d32222 100%);
+    box-shadow: 0 20px 40px rgba(211, 34, 34, 0.34);
   }
   .donate-pill {
     background: linear-gradient(135deg, #187354 0%, #2b9a70 100%);
@@ -137,13 +153,14 @@
   }
   .donate-pill:hover {
     background: linear-gradient(135deg, #125d44 0%, #21815d 100%);
+    box-shadow: 0 16px 32px rgba(24, 115, 84, 0.35);
   }
   .donate-pill-blue { background: linear-gradient(135deg, #245f91 0%, #368fc9 100%); box-shadow: 0 12px 28px rgba(44, 117, 165, 0.25); }
-  .donate-pill-blue:hover { background: linear-gradient(135deg, #143c57 0%, #2c75a5 100%); }
+  .donate-pill-blue:hover { background: linear-gradient(135deg, #143c57 0%, #2c75a5 100%); box-shadow: 0 16px 32px rgba(44, 117, 165, 0.35); }
   .donate-pill-red { background: linear-gradient(135deg, #a81b1b 0%, #d32222 100%); box-shadow: 0 12px 28px rgba(211, 34, 34, 0.25); }
-  .donate-pill-red:hover { background: #a81b1b; }
+  .donate-pill-red:hover { background: #a81b1b; box-shadow: 0 16px 32px rgba(211, 34, 34, 0.35); }
   .donate-pill-purple { background: linear-gradient(135deg, #5b3b88 0%, #8a62c2 100%); box-shadow: 0 12px 28px rgba(91, 59, 136, 0.25); }
-  .donate-pill-purple:hover { background: linear-gradient(135deg, #49306c 0%, #704ca0 100%); }
+  .donate-pill-purple:hover { background: linear-gradient(135deg, #49306c 0%, #704ca0 100%); box-shadow: 0 16px 32px rgba(91, 59, 136, 0.35); }
   .donate-heart {
     display: grid;
     width: 2rem;
@@ -152,6 +169,10 @@
     border: 1px solid rgb(255 255 255 / 38%);
     border-radius: 999px;
     background: rgb(255 255 255 / 16%);
+    transition: transform 0.25s ease;
+  }
+  .btn:hover .donate-heart {
+    transform: scale(1.1);
   }
   .btn-sm .donate-heart {
     width: 1.15rem;
@@ -161,18 +182,24 @@
     border-color: var(--color-brand);
     color: var(--color-brand);
     background: #fff;
+    box-shadow: 0 4px 14px rgba(44, 117, 165, 0.08);
   }
   .btn-ghost:hover {
     background: var(--color-mist);
     border-color: var(--color-deep);
     color: var(--color-deep);
+    box-shadow: 0 8px 20px rgba(44, 117, 165, 0.14);
   }
   .btn-light {
     border-color: rgba(255, 255, 255, 0.55);
     color: #fff;
+    background: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(4px);
   }
   .btn-light:hover {
-    background: rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.18);
+    border-color: #fff;
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.2);
   }
   .btn-sm {
     padding: 0.5rem 1rem;
@@ -200,13 +227,35 @@
     border: 1px solid var(--color-line);
     border-radius: 18px;
     box-shadow: 0 10px 30px rgba(44, 117, 165, 0.07);
+    transition: border-color 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1), transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .card:hover {
+    border-color: var(--color-brand-soft);
+    box-shadow: 0 20px 42px rgba(44, 117, 165, 0.14);
+    transform: translateY(-4px);
   }
   .card-hover {
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.28s ease;
   }
   .card-hover:hover {
-    transform: translateY(-3px);
+    transform: translateY(-5px);
     box-shadow: var(--shadow-soft);
+  }
+  .card img {
+    transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .card:hover img {
+    transform: scale(1.035);
+  }
+  .policy-accordion > summary::-webkit-details-marker {
+    display: none;
+  }
+  .policy-accordion {
+    transition: all 0.25s ease;
+  }
+  .policy-accordion:hover {
+    border-color: var(--color-brand);
+    box-shadow: 0 12px 28px rgba(44, 117, 165, 0.1);
   }
 
   .link {
@@ -215,6 +264,7 @@
     text-decoration: underline;
     text-decoration-color: rgba(44, 117, 165, 0.3);
     text-underline-offset: 3px;
+    transition: color 0.18s ease, text-decoration-color 0.18s ease;
   }
   .link:hover {
     color: var(--color-deep);
@@ -488,13 +538,17 @@
     background: rgba(255, 255, 255, 0.055);
     border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 18px;
-    transition: transform 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease, background-color 0.25s ease, box-shadow 0.25s ease;
   }
   .stat-dark-card:hover {
-    background: rgba(255, 255, 255, 0.085);
-    border-color: rgba(138, 190, 224, 0.42);
-    transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.095);
+    border-color: rgba(138, 190, 224, 0.55);
+    transform: translateY(-4px);
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.28);
   }
+
+
+
 }
 
 /* Alkhidmat-style hero Ken Burns zoom + slide progress bar + headline reveal */
@@ -505,6 +559,19 @@
   to {
     transform: scale(1.065);
   }
+}
+@keyframes ff-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-fade-in {
+  animation: ff-fade-in 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 @keyframes ff-slide-up {
   from {
@@ -542,25 +609,73 @@
   }
 }
 
-/* Partner logo marquee */
-@keyframes ff-marquee {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-50%);
-  }
+/* Partner logos */
+.partner-marquee-wrap {
+  overflow: visible;
 }
-.marquee-track {
-  display: flex;
+.partner-marquee-track,
+.partner-marquee-group {
+  display: grid;
+}
+.partner-marquee-track {
+  width: 100%;
+}
+.partner-marquee-group {
   width: max-content;
-  animation: ff-marquee 42s linear infinite;
+  grid-template-columns: repeat(3, 100px);
+  gap: 0.75rem;
+  padding: 0;
+  list-style: none;
 }
-.marquee-wrap:hover .marquee-track {
-  animation-play-state: paused;
+.partner-logo-card {
+  display: flex;
+  min-width: 0;
+  width: 100px;
+  height: 92px;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border: 1px solid #e8edf1;
+  border-radius: 12px;
+  background: #fff;
+  padding: 0.65rem;
+  box-shadow: 0 8px 20px rgba(20, 60, 87, 0.06);
+  transition: transform 200ms ease, box-shadow 200ms ease;
+}
+.partner-logo-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(20, 60, 87, 0.1);
+}
+.partner-logo-card img {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+@media (max-width: 639px) {
+  .partner-marquee-group {
+    grid-template-columns: repeat(3, 80px);
+    gap: 0.5rem;
+  }
+  .partner-logo-card {
+    width: 80px;
+    height: 76px;
+    border-radius: 10px;
+    padding: 0.5rem;
+  }
 }
 @media (prefers-reduced-motion: reduce) {
-  .marquee-track {
+  :root:not([data-motion="full"]) .marquee-track {
     animation: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :where(a, button, summary),
+  .card,
+  .card-hover {
+    transition-duration: 0.01ms !important;
   }
 }

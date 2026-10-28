@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { ArrowRightIcon } from "./Icons";
 import { ImpactStatIcon, type StatIconName } from "./ImpactStatsBand";
+import AnimatedNumber from "./AnimatedNumber";
 
 const PILLARS: {
   key: string;
@@ -106,10 +107,10 @@ export default function ImpactExplorer() {
       </div>
 
       {/* Focal dark glass card + 4 dark glass icon stat cards */}
-      <div className="mt-9 grid items-center gap-6 lg:grid-cols-12">
+      <div key={current.key} className="animate-fade-in mt-9 grid items-center gap-6 lg:grid-cols-12">
         <div className="stat-dark-card p-7 lg:col-span-5">
           <p className="font-sans text-4xl font-extrabold tracking-[-0.02em] text-white tabular-nums md:text-5xl">
-            {current.headline}
+            <AnimatedNumber value={current.headline} />
           </p>
           <p className="mt-1.5 text-base font-bold text-brand-soft">{current.headlineUnit}</p>
           <p className="mt-3 text-[15px] leading-relaxed text-slate-200/80">{current.summary}</p>
@@ -132,7 +133,7 @@ export default function ImpactExplorer() {
               </span>
               <span className="min-w-0">
                 <strong className="block font-sans text-[1.65rem] leading-[1.12] font-extrabold tracking-[-0.02em] text-white tabular-nums">
-                  {m.value}
+                  <AnimatedNumber value={m.value} />
                 </strong>
                 <span className="mt-1 block text-[13.5px] leading-[1.34] text-slate-200/75">
                   {m.label}

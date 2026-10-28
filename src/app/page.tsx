@@ -7,13 +7,14 @@ import ThematicAccordionSlider from "@/components/ThematicAccordionSlider";
 import StoriesCarousel from "@/components/StoriesCarousel";
 import ImpactExplorer from "@/components/ImpactExplorer";
 import CampaignSpotlight from "@/components/CampaignSpotlight";
+import AnimatedNumber from "@/components/AnimatedNumber";
+import PartnerMarquee from "@/components/PartnerMarquee";
+import FaqAccordion from "@/components/FaqAccordion";
 import { ArrowRightIcon, CheckIcon } from "@/components/Icons";
 import { devPartners, govPartners, img, regions } from "@/lib/content";
 import { getSiteCms } from "@/lib/cms";
 
 export const dynamic = "force-dynamic";
-
-const allPartners = [...devPartners, ...govPartners];
 
 export default async function Home() {
   const cms = await getSiteCms();
@@ -125,7 +126,7 @@ export default async function Home() {
                     <ImpactStatIcon name={stat.icon} className="h-7 w-7" />
                     <div>
                       <strong className="block font-sans text-xl leading-none font-extrabold text-white tabular-nums">
-                        {stat.value}
+                        <AnimatedNumber value={stat.value} />
                       </strong>
                       <span className="mt-1 block text-[12.5px] leading-snug text-slate-200/75">{stat.label}</span>
                     </div>
@@ -286,28 +287,18 @@ export default async function Home() {
           </div>
         </section>
 
-        {/* Partners marquee */}
-        <section className="border-y border-line bg-white py-14 md:py-16">
-          <div className="container-ff">
-            <h2 className="text-center">Current &amp; past partners</h2>
+        {/* Continuously moving government and development partner logo rows */}
+        <section className="border-y border-line bg-[#f3f8fc] py-14 md:py-16">
+          <div className="mx-auto grid w-[min(1500px,100%-2.5rem)] gap-10 lg:grid-cols-2 lg:gap-12">
+            <PartnerMarquee
+              heading="Governmental Partners"
+              partners={govPartners.map((partner) => ({ ...partner, logo: img(partner.logo) }))}
+            />
+            <PartnerMarquee
+              heading="Partners NGO/INGOs"
+              partners={devPartners.map((partner) => ({ ...partner, logo: img(partner.logo) }))}
+            />
           </div>
-          <div className="marquee-wrap mt-10 overflow-hidden [mask-image:linear-gradient(90deg,transparent,#000_7%,#000_93%,transparent)]">
-            <div className="marquee-track gap-4 pr-4">
-              {[...allPartners, ...allPartners].map((p, i) => (
-                <div
-                  key={`${p.name}-${i}`}
-                  className="flex h-24 w-44 shrink-0 items-center justify-center rounded-[16px] border border-line bg-white p-4"
-                  title={p.name}
-                >
-                  <img src={img(p.logo)} alt={p.name} loading="lazy" className="max-h-14 w-auto max-w-full object-contain" />
-                </div>
-              ))}
-            </div>
-          </div>
-          <p className="container-ff mt-8 text-center text-[15px] text-muted">
-            Government departments, UN agencies, international NGOs and universities — including UNDP, UNICEF, WHO, USAID,
-            the World Bank, Concern Worldwide, Save the Children, Aurat Foundation and WASA.
-          </p>
         </section>
 
         {/* Where we work */}
@@ -347,6 +338,58 @@ export default async function Home() {
                 Friends Foundation’s footprint across Pakistan. Click to enlarge.
               </figcaption>
             </figure>
+          </div>
+        </section>
+
+        {/* Frequently Asked Questions Accordion */}
+        <section className="border-t border-line bg-mist/50 py-16 md:py-24">
+          <div className="container-ff">
+            <div className="mx-auto mb-10 max-w-2xl text-center">
+              <span className="eyebrow eyebrow-blue">Questions &amp; Answers</span>
+              <h2 className="mt-2 text-3xl font-bold tracking-tight text-deep-2 md:text-4xl">
+                Frequently Asked Questions
+              </h2>
+              <p className="mt-3 text-[1.05rem] text-slate-600">
+                Learn more about how we work, how donations are utilised, and how we reach families across Pakistan.
+              </p>
+            </div>
+
+            <div className="mx-auto max-w-3xl">
+              <FaqAccordion
+                items={[
+                  {
+                    category: "Outreach & Footprint",
+                    question: "Where does Friends Foundation work across Pakistan?",
+                    answer:
+                      "Founded in Rawalpindi after the 2001 flash floods, Friends Foundation operates across Punjab, Khyber Pakhtunkhwa, Sindh, Balochistan, and Azad Jammu & Kashmir. We run three permanent family health centres in Rawalpindi slums (Akal Garh, Mohan Pura, and Mohallah Raja Sultan) and active field programmes for clean water, flood relief, non-formal girls' education, and democratic empowerment.",
+                  },
+                  {
+                    category: "Governance & Registration",
+                    question: "Is Friends Foundation an officially registered and audited non-profit?",
+                    answer:
+                      "Yes. Friends Foundation is officially registered under the Societies Registration Act XXI of 1860, holds Category 'A' certification from the Punjab Charity Commission, and maintains approved Economic Affairs Division (EAD) clearances for international collaborations. Our accounts undergo independent annual statutory audits by reputable chartered accountancy firms.",
+                  },
+                  {
+                    category: "Donations & Zakat",
+                    question: "Can I direct my donation to a specific cause or Zakat?",
+                    answer:
+                      "Absolutely. You can designate your support for where it is needed most, our three maternal & child health centres, community clean water filtration & hand pumps, crisis relief kits, or non-formal girls’ schools. We also maintain a dedicated, Shariah-separated Zakat bank account exclusively for eligible recipients.",
+                  },
+                  {
+                    category: "Payment Methods",
+                    question: "What currencies and payment methods can I use?",
+                    answer:
+                      "We accept local donations in PKR via direct bank transfer, fee-free Raast instant transfers, JazzCash, EasyPaisa, SadaPay, and NayaPay. For overseas donors in the UK, US, Europe, Canada, and the Gulf, we accept USD, GBP, and EUR via international SWIFT bank wire, Wise, and Remitly directly into our official foreign currency accounts.",
+                  },
+                  {
+                    category: "Sustainability",
+                    question: "How does Friends Foundation ensure projects last after delivery?",
+                    answer:
+                      "Social mobilisation is our core methodology. Rather than delivering outside handouts, we establish community committees composed of local elders, women activists, and youth. They receive hands-on training to operate, maintain, and protect community assets (such as water filtration plants, hand pumps, and clinic services) for long-term sustainability.",
+                  },
+                ]}
+              />
+            </div>
           </div>
         </section>
 

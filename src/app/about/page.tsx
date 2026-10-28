@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import PageHeader from "@/components/PageHeader";
 import ImpactStatsBand from "@/components/ImpactStatsBand";
+import FaqAccordion from "@/components/FaqAccordion";
 import { board, certificates, facts, img, keyPolicies, memberships, registration, staff, unSdgs } from "@/lib/content";
 import { getSiteCms } from "@/lib/cms";
 
@@ -134,18 +136,57 @@ export default async function AboutPage() {
               {unSdgs.map((sdg) => (
                 <div
                   key={sdg.number}
-                  className="group rounded-2xl border border-line bg-mist/50 p-4 transition hover:-translate-y-1 hover:border-brand-bright hover:shadow-md"
+                  className="card card-hover group overflow-hidden"
+                  style={{ borderTopColor: sdg.color, borderTopWidth: 4 }}
                 >
-                  <div
-                    style={{ backgroundColor: sdg.color }}
-                    className="grid h-10 w-10 place-items-center rounded-xl text-lg font-black text-white"
-                  >
-                    {sdg.number}
+                  <Image
+                    src={sdg.logo}
+                    alt={`United Nations Sustainable Development Goal ${sdg.number}: ${sdg.name}`}
+                    width={200}
+                    height={200}
+                    loading="lazy"
+                    className="aspect-square w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+                  />
+                  <div className="p-3.5">
+                    <p className="text-[13.5px] font-bold leading-snug text-ink">{sdg.name}</p>
+                    <span className="mt-1 block text-[11.5px] font-semibold text-slate-500">SDG Goal {sdg.number}</span>
                   </div>
-                  <p className="mt-3 text-[13.5px] font-bold leading-snug text-ink">{sdg.name}</p>
-                  <span className="mt-1 block text-[11.5px] font-semibold text-slate-500">SDG Goal {sdg.number}</span>
                 </div>
               ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="bg-mist/60 py-14">
+          <div className="container-ff">
+            <div className="max-w-2xl">
+              <p className="font-sans text-[12px] font-extrabold uppercase tracking-[0.14em] text-brand">
+                Accountability
+              </p>
+              <h2 className="mt-1 text-2xl md:text-3xl">Our policies and safeguards</h2>
+              <p className="mt-2 text-[15.5px] text-slate-600">
+                Open a policy to learn how we protect people, manage resources, and maintain accountability.
+              </p>
+            </div>
+            <div className="mt-7 grid gap-4 lg:grid-cols-2">
+              <FaqAccordion
+                allowMultiple
+                defaultOpenIndex={null}
+                items={keyPolicies.slice(0, 5).map((p) => ({
+                  category: "Institutional Safeguard",
+                  question: p.name,
+                  answer: p.desc,
+                }))}
+              />
+              <FaqAccordion
+                allowMultiple
+                defaultOpenIndex={null}
+                items={keyPolicies.slice(5).map((p) => ({
+                  category: "Governance & Operations",
+                  question: p.name,
+                  answer: p.desc,
+                }))}
+              />
             </div>
           </div>
         </section>
