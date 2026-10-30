@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { CmsSectionKey, CmsState } from "@/lib/cms";
+import { CMS_SECTION_KEYS } from "@/lib/cms-keys";
 import { ImpactStatIcon, type StatIconName } from "@/components/ImpactStatsBand";
 import { ArrowRightIcon, CloseIcon, MailIcon, MenuIcon, PhoneIcon } from "@/components/Icons";
 import { formatIbanDisplay, type BankAccountConfig, type MobileWalletConfig } from "@/lib/banking";
@@ -108,8 +109,7 @@ export default function AdminDashboard({
   initialDonationError,
   initialContacts,
   initialLibrary,
-  initialPasswordEnabled,
-  envPasswordLocked,
+  initialAdminUsername,
   initialTab = "overview",
 }: {
   initialState: CmsState;
@@ -118,8 +118,7 @@ export default function AdminDashboard({
   initialDonationError?: string | null;
   initialContacts: AdminContactRow[];
   initialLibrary: MediaLibraryItem[];
-  initialPasswordEnabled: boolean;
-  envPasswordLocked: boolean;
+  initialAdminUsername: string;
   initialTab?: AdminTab;
 }) {
   const router = useRouter();
@@ -133,6 +132,9 @@ export default function AdminDashboard({
 
   const [savingKey, setSavingKey] = useState<string | null>(null);
   const [toast, setToast] = useState<{ kind: "ok" | "err"; text: string } | null>(null);
+  const previousCms = useRef(cms);
+  const saveTimers = useRef(new Map<CmsSectionKey, number>());
+  const saveQueues = useRef(new Map<CmsSectionKey, Promise<void>>());
 
   // Sub-views
   const [progMode, setProgMode] = useState<"slider" | "pages">("slider");
@@ -155,8 +157,8 @@ export default function AdminDashboard({
   });
 
   const [galleryUploading, setGalleryUploading] = useState(false);
-  const [passwordEnabled, setPasswordEnabled] = useState(initialPasswordEnabled);
-  const [passcodeInput, setPasscodeInput] = useState("");
+  const [adminUsername, setAdminUsername] = useState(initialAdminUsername);
+  const [adminPasswordInput, setAdminPasswordInput] = useState("");
 
   useEffect(() => {
     if (!toast) return;
@@ -172,10 +174,21 @@ export default function AdminDashboard({
     setLibrary((prev) => [item, ...prev.filter((x) => x.url !== item.url)]);
   }
 
-  async function saveSection<K extends CmsSectionKey>(section: K, data?: CmsState[K]) {
-    setSavingKey(section);
-    try {
-      const payload = data ?? cms[section];
+  const saveSection = useCallback(async <K extends CmsSectionKey,>(
+    section: K,
+    data?: CmsState[K],
+    autoSave = false,
+  ) => {
+    const pendingTimer = saveTimers.current.get(section);
+    if (pendingTimer !== undefined) {
+      window.clearTimeout(pendingTimer);
+      saveTimers.current.delete(section);
+    }
+
+    const payload = data ?? cms[section];
+    const previousSave = saveQueues.current.get(section) ?? Promise.resolve();
+    const queuedSave = previousSave.catch(() => undefined).then(async () => {
+      setSavingKey(section);
       const res = await fetch("/api/admin/cms", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -183,17 +196,68 @@ export default function AdminDashboard({
       });
       const json = (await res.json()) as { error?: string };
       if (!res.ok) throw new Error(json.error || "Could not save changes.");
-      notify("ok", "Saved & published live on website.");
-      router.refresh();
+      if (!autoSave) {
+        setToast({ kind: "ok", text: "Saved & published live on website." });
+        router.refresh();
+      }
+    });
+    saveQueues.current.set(section, queuedSave);
+
+    try {
+      await queuedSave;
     } catch (err) {
-      notify("err", err instanceof Error ? err.message : "Save failed.");
+      setToast({
+        kind: "err",
+        text: err instanceof Error ? err.message : "Save failed.",
+      });
     } finally {
-      setSavingKey(null);
+      if (saveQueues.current.get(section) === queuedSave) {
+        saveQueues.current.delete(section);
+        setSavingKey(null);
+      }
     }
-  }
+  }, [cms, router]);
+
+  useEffect(() => {
+    for (const section of CMS_SECTION_KEYS) {
+      if (previousCms.current[section] === cms[section]) continue;
+
+      const pendingTimer = saveTimers.current.get(section);
+      if (pendingTimer !== undefined) window.clearTimeout(pendingTimer);
+
+      if (
+        section === "donationWhatsappNumber" &&
+        cms.donationWhatsappNumber !== "" &&
+        !/^\d{7,15}$/.test(cms.donationWhatsappNumber.replace(/\D/g, ""))
+      ) {
+        saveTimers.current.delete(section);
+        continue;
+      }
+
+      const timer = window.setTimeout(() => {
+        saveTimers.current.delete(section);
+        void saveSection(section, cms[section], true);
+      }, 700);
+      saveTimers.current.set(section, timer);
+    }
+
+    previousCms.current = cms;
+  }, [cms, saveSection]);
+
+  useEffect(
+    () => () => {
+      for (const timer of saveTimers.current.values()) window.clearTimeout(timer);
+    },
+    [],
+  );
 
   async function resetSection(section: CmsSectionKey) {
     if (!window.confirm("Restore this section back to its original default content?")) return;
+    const pendingTimer = saveTimers.current.get(section);
+    if (pendingTimer !== undefined) {
+      window.clearTimeout(pendingTimer);
+      saveTimers.current.delete(section);
+    }
     setSavingKey(section);
     try {
       const res = await fetch(`/api/admin/cms?section=${section}`, { method: "DELETE" });
@@ -402,25 +466,50 @@ export default function AdminDashboard({
     }
   }
 
-  async function savePasscode(newPasscode: string) {
-    const res = await fetch("/api/admin/auth", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "set-passcode", newPasscode }),
-    });
-    const json = (await res.json()) as { ok?: boolean; passwordEnabled?: boolean; error?: string };
-    if (!res.ok) {
-      notify("err", json.error || "Could not update passcode.");
+  async function updateAdminCredentials() {
+    try {
+      const res = await fetch("/api/admin/auth", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "update-credentials",
+          username: adminUsername,
+          password: adminPasswordInput,
+        }),
+      });
+      const json = (await res.json()) as { ok?: boolean; username?: string; error?: string };
+      if (!res.ok) {
+        notify("err", json.error || "Could not update admin credentials.");
+        return;
+      }
+      setAdminUsername(json.username || adminUsername);
+      setAdminPasswordInput("");
+      notify("ok", "Admin credentials updated. Other existing sessions have been signed out.");
+      router.refresh();
+    } catch (error) {
+      notify("err", error instanceof Error ? error.message : "Could not update admin credentials.");
+    }
+  }
+
+  async function removeAdminAccount() {
+    if (!window.confirm("Remove this admin account? This will immediately lock everyone out of /admin. To restore access, delete the __admin_credentials__ row from the site_cms table after configuring ADMIN_ID and ADMIN_PASSWORD on the server.")) {
       return;
     }
-    setPasswordEnabled(Boolean(json.passwordEnabled));
-    setPasscodeInput("");
-    notify(
-      "ok",
-      json.passwordEnabled
-        ? "Admin passcode protection enabled."
-        : "Admin passcode removed — /admin opens directly.",
-    );
+    try {
+      const res = await fetch("/api/admin/auth", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "remove-account" }),
+      });
+      const json = (await res.json()) as { ok?: boolean; error?: string };
+      if (!res.ok) {
+        notify("err", json.error || "Could not remove the admin account.");
+        return;
+      }
+      router.refresh();
+    } catch (error) {
+      notify("err", error instanceof Error ? error.message : "Could not remove the admin account.");
+    }
   }
 
   async function logoutAdmin() {
@@ -486,15 +575,13 @@ export default function AdminDashboard({
             Website Admin Control · Changes publish immediately
           </p>
           <div className="flex items-center gap-3">
-            {passwordEnabled && (
-              <button
-                type="button"
-                onClick={logoutAdmin}
-                className="text-[12px] font-bold text-white/90 hover:text-white hover:underline"
-              >
-                Sign out
-              </button>
-            )}
+            <button
+              type="button"
+              onClick={logoutAdmin}
+              className="text-[12px] font-bold text-white/90 hover:text-white hover:underline"
+            >
+              Sign out
+            </button>
             <button
               type="button"
               onClick={openLiveWebsite}
@@ -664,13 +751,16 @@ export default function AdminDashboard({
 
           {/* Main Workspace Column */}
           <main className="min-w-0 lg:col-span-9">
+            <p className="mb-5 text-xs font-semibold text-muted" role="status" aria-live="polite">
+              {savingKey ? "Saving your changes…" : "Website edits save automatically as you make them."}
+            </p>
             {/* ==================== 1. OVERVIEW ==================== */}
             {tab === "overview" && (
               <div className="space-y-8">
                 <div>
                   <h1 className="text-deep-2">Website Control Dashboard</h1>
                   <p className="mt-2 max-w-2xl text-[1.03rem] text-ink/75">
-                    Update front-page banners, impact numbers, programmes, stories, gallery photos, donations and site settings — every save goes live right away.
+                    Website text, numbers, banners, photos, branding and contact details save automatically as you edit.
                   </p>
                 </div>
 
@@ -2449,6 +2539,61 @@ export default function AdminDashboard({
             {/* ==================== 10. SITE INFO & SECURITY ==================== */}
             {tab === "settings" && (
               <div className="space-y-8">
+                <section className="card space-y-5 p-6">
+                  <div className="border-b border-line pb-4">
+                    <h1 className="text-xl text-deep-2">Donation WhatsApp Number</h1>
+                    <p className="mt-1 text-sm text-muted">
+                      Set the international WhatsApp number donors should message, including the country code.
+                    </p>
+                  </div>
+                  <div className="max-w-xl">
+                    <label htmlFor="donationWhatsappNumber" className="label text-xs">
+                      WhatsApp number
+                    </label>
+                    <input
+                      id="donationWhatsappNumber"
+                      type="tel"
+                      inputMode="tel"
+                      autoComplete="tel"
+                      maxLength={24}
+                      placeholder="+92 300 1234567"
+                      value={cms.donationWhatsappNumber}
+                      onChange={(e) =>
+                        setCms({ ...cms, donationWhatsappNumber: e.target.value })
+                      }
+                      className="field"
+                    />
+                    <p className="mt-2 text-xs text-muted">
+                      Include the country code. Spaces, parentheses, dashes, and a leading plus are accepted.
+                      Leave blank and delete the saved number to disable WhatsApp donations.
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      disabled={savingKey === "donationWhatsappNumber"}
+                      onClick={() => saveSection("donationWhatsappNumber")}
+                      className="btn btn-accent btn-sm"
+                    >
+                      {savingKey === "donationWhatsappNumber" ? "Saving…" : "Save WhatsApp Number"}
+                    </button>
+                    <button
+                      type="button"
+                      disabled={savingKey === "donationWhatsappNumber" || !cms.donationWhatsappNumber}
+                      onClick={() => {
+                        if (!window.confirm("Delete the donation WhatsApp number? Donors will no longer be able to submit donations through WhatsApp.")) {
+                          return;
+                        }
+                        setCms({ ...cms, donationWhatsappNumber: "" });
+                        void saveSection("donationWhatsappNumber", "");
+                      }}
+                      className="btn btn-ghost btn-sm text-red-700"
+                    >
+                      {savingKey === "donationWhatsappNumber" ? "Saving…" : "Delete Number"}
+                    </button>
+                  </div>
+                </section>
+
                 <div className="card space-y-5 p-6">
                   <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line pb-4">
                     <div>
@@ -2477,6 +2622,15 @@ export default function AdminDashboard({
                   </div>
 
                   <div className="grid gap-4 md:grid-cols-2">
+                    <div>
+                      <label className="label text-xs">Header Tagline</label>
+                      <input
+                        type="text"
+                        value={cms.siteInfo.headerTagline || "Working across Pakistan since 2001"}
+                        onChange={(e) => setCms({ ...cms, siteInfo: { ...cms.siteInfo, headerTagline: e.target.value } })}
+                        className="field"
+                      />
+                    </div>
                     <div>
                       <label className="label text-xs">Header Donation Button Label</label>
                       <input
@@ -2579,6 +2733,54 @@ export default function AdminDashboard({
                     />
                   </div>
 
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <div>
+                      <label className="label text-xs">Footer Programmes Heading</label>
+                      <input
+                        type="text"
+                        value={cms.siteInfo.footerProgrammesHeading || "What we do"}
+                        onChange={(e) => setCms({ ...cms, siteInfo: { ...cms.siteInfo, footerProgrammesHeading: e.target.value } })}
+                        className="field"
+                      />
+                    </div>
+                    <div>
+                      <label className="label text-xs">Footer Organization Heading</label>
+                      <input
+                        type="text"
+                        value={cms.siteInfo.footerOrganizationHeading || "Organisation"}
+                        onChange={(e) => setCms({ ...cms, siteInfo: { ...cms.siteInfo, footerOrganizationHeading: e.target.value } })}
+                        className="field"
+                      />
+                    </div>
+                    <div>
+                      <label className="label text-xs">Footer Contact Heading</label>
+                      <input
+                        type="text"
+                        value={cms.siteInfo.footerContactHeading || "Get in touch"}
+                        onChange={(e) => setCms({ ...cms, siteInfo: { ...cms.siteInfo, footerContactHeading: e.target.value } })}
+                        className="field"
+                      />
+                    </div>
+                    <div>
+                      <label className="label text-xs">Footer Donation Button Label</label>
+                      <input
+                        type="text"
+                        value={cms.siteInfo.footerDonateLabel || "Donate"}
+                        onChange={(e) => setCms({ ...cms, siteInfo: { ...cms.siteInfo, footerDonateLabel: e.target.value } })}
+                        className="field"
+                      />
+                    </div>
+                    <div className="md:col-span-2">
+                      <label className="label text-xs">Footer Bottom Tagline</label>
+                      <input
+                        type="text"
+                        value={cms.siteInfo.footerBottomTagline || "Health · Clean water · Education · Women’s rights · Emergency relief"}
+                        onChange={(e) => setCms({ ...cms, siteInfo: { ...cms.siteInfo, footerBottomTagline: e.target.value } })}
+                        className="field"
+                      />
+                    </div>
+                  </div>
+
                   <div className="space-y-2">
                     <label className="label text-xs">Social Media Links</label>
                     <div className="grid gap-3 sm:grid-cols-2">
@@ -2609,44 +2811,62 @@ export default function AdminDashboard({
                   />
                 </div>
 
-                {/* Optional Admin Passcode Security */}
+                {/* Admin account security */}
                 <div className="card space-y-4 p-6">
-                  <h2 className="text-lg text-deep-2">Admin Passcode Protection</h2>
+                  <h2 className="text-lg text-deep-2">Admin ID &amp; Password</h2>
                   <p className="text-sm text-ink/75">
-                    {envPasswordLocked
-                      ? "Passcode is locked via your server's ADMIN_PASSWORD environment variable."
-                      : passwordEnabled
-                        ? "Passcode lock is currently ACTIVE — visitors to /admin must enter your passcode first."
-                        : "Passcode lock is currently OFF so you can open /admin directly. Set a passcode below anytime to lock /admin."}
+                    Change the sign-in ID or set a new password. Leave the password blank to keep the current one.
+                    Passwords must be at least 12 characters. Changes replace any server bootstrap credentials.
                   </p>
 
-                  {!envPasswordLocked && (
-                    <div className="flex flex-wrap items-center gap-3">
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <div>
+                      <label htmlFor="admin-account-id" className="label text-xs">Admin ID</label>
                       <input
-                        type="password"
-                        value={passcodeInput}
-                        onChange={(e) => setPasscodeInput(e.target.value)}
-                        placeholder="New passcode (min 4 characters)"
-                        className="field w-64 py-2 text-sm"
+                        id="admin-account-id"
+                        type="text"
+                        autoComplete="username"
+                        value={adminUsername}
+                        onChange={(e) => setAdminUsername(e.target.value)}
+                        className="field"
                       />
-                      <button
-                        type="button"
-                        onClick={() => savePasscode(passcodeInput)}
-                        className="btn btn-primary btn-sm"
-                      >
-                        {passwordEnabled ? "Update Passcode" : "Enable Passcode Lock"}
-                      </button>
-                      {passwordEnabled && (
-                        <button
-                          type="button"
-                          onClick={() => savePasscode("")}
-                          className="btn btn-ghost btn-sm text-accent"
-                        >
-                          Disable Passcode Lock
-                        </button>
-                      )}
                     </div>
-                  )}
+                    <div>
+                      <label htmlFor="admin-account-password" className="label text-xs">New password (optional)</label>
+                      <input
+                        id="admin-account-password"
+                        type="password"
+                        autoComplete="new-password"
+                        minLength={12}
+                        value={adminPasswordInput}
+                        onChange={(e) => setAdminPasswordInput(e.target.value)}
+                        placeholder="Leave blank to keep current password"
+                        className="field"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={() => void updateAdminCredentials()}
+                      className="btn btn-primary btn-sm"
+                    >
+                      Save Admin Credentials
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => void removeAdminAccount()}
+                      className="btn btn-ghost btn-sm text-accent"
+                    >
+                      Remove Admin Account
+                    </button>
+                  </div>
+                  <p className="text-xs text-muted">
+                    Removing this account disables admin sign-in and signs out all sessions. To restore access, configure
+                    ADMIN_ID and ADMIN_PASSWORD on the server, then remove the disabled __admin_credentials__ row from
+                    the site_cms table.
+                  </p>
                 </div>
               </div>
             )}

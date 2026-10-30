@@ -138,11 +138,6 @@ export default function BankSystemPanel({
               desc: "Allow instant transfers to mobile wallet accounts",
             },
             {
-              key: "allowReceiptUpload" as const,
-              title: "Receipt / Screenshot Upload",
-              desc: "Allow donors to attach bank slip screenshots for instant verification",
-            },
-            {
               key: "requireTransactionRef" as const,
               title: "Require Transaction ID (TID)",
               desc: "Require donors to type their IBFT / Raast reference ID",

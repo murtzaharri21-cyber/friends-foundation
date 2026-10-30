@@ -1,3 +1,5 @@
+import AnimatedNumber from "./AnimatedNumber";
+
 export type StatIconName = "pin" | "calendar" | "funds" | "people" | "home" | "team" | "water" | "shield";
 
 export type ImpactStatCard = {
@@ -162,7 +164,7 @@ export default function ImpactStatsBand({
               </span>
               <span className="min-w-0">
                 <strong className="block font-sans text-[1.55rem] leading-[1.12] font-extrabold tracking-[-0.02em] text-white tabular-nums sm:text-[1.7rem] xl:text-[1.3rem]">
-                  {item.value}
+                  <AnimatedNumber value={item.value} />
                 </strong>
                 <span className="mt-1 block text-[13px] leading-[1.32] text-slate-200/75">
                   {item.label}

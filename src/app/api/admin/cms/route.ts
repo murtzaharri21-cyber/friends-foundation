@@ -15,8 +15,7 @@ export async function GET() {
   return NextResponse.json({
     state,
     defaults: DEFAULT_CMS_STATE,
-    passwordEnabled: auth.passwordEnabled,
-    envPasswordLocked: Boolean(process.env.ADMIN_PASSWORD && process.env.ADMIN_PASSWORD.trim().length > 0),
+    adminUsername: auth.username,
   });
 }
 
@@ -39,6 +38,21 @@ export async function PUT(req: NextRequest) {
   }
   if (body.data === undefined || body.data === null) {
     return NextResponse.json({ error: "Missing section data." }, { status: 400 });
+  }
+
+  if (section === "donationWhatsappNumber") {
+    if (typeof body.data !== "string") {
+      return NextResponse.json({ error: "Enter a valid WhatsApp number." }, { status: 400 });
+    }
+    const rawNumber = body.data.trim();
+    if (rawNumber && !/^\+?[\d\s().-]+$/.test(rawNumber)) {
+      return NextResponse.json({ error: "Use digits, a country code, and optional phone-number separators only." }, { status: 400 });
+    }
+    const normalizedNumber = rawNumber.replace(/\D/g, "");
+    if (normalizedNumber && !/^\d{7,15}$/.test(normalizedNumber)) {
+      return NextResponse.json({ error: "WhatsApp numbers must contain 7 to 15 digits, including the country code." }, { status: 400 });
+    }
+    body.data = normalizedNumber;
   }
 
   try {

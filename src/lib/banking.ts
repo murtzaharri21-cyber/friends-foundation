@@ -54,7 +54,6 @@ export type PaymentSystemConfig = {
   bankTransferEnabled: boolean;
   mobileWalletEnabled: boolean;
   pledgeLaterEnabled: boolean;
-  allowReceiptUpload: boolean;
   requireTransactionRef: boolean;
   taxExemptionNote: string;
   confirmationNote: string;
@@ -109,7 +108,6 @@ export const DEFAULT_PAYMENT_CONFIG: PaymentSystemConfig = {
   bankTransferEnabled: true,
   mobileWalletEnabled: true,
   pledgeLaterEnabled: true,
-  allowReceiptUpload: true,
   requireTransactionRef: false,
   taxExemptionNote:
     "Registered non-profit under the Societies Registration Act 1860 · Punjab Charity Commission Category ‘A’ · Valid EAD NOC for receiving international remittances.",

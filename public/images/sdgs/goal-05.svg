@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-labelledby="title">
+  <title id="title">Goal 5: Gender Equality</title>
+  <rect width="200" height="200" fill="#ff3a21"/>
+  <text x="16" y="34" fill="#fff" font-family="Arial,sans-serif" font-size="24" font-weight="700">5</text>
+  <circle cx="100" cy="93" r="37" fill="none" stroke="#fff" stroke-width="8"/>
+  <path d="M100 130v42m-20-21h40" fill="none" stroke="#fff" stroke-linecap="round" stroke-width="8"/>
+  <path d="M78 77h44m-44 17h44" fill="none" stroke="#fff" stroke-linecap="round" stroke-width="7"/>
+</svg>

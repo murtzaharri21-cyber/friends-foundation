@@ -33,7 +33,7 @@ const uses = [
 ];
 
 export default async function DonatePage() {
-  const { paymentConfig } = await getSiteCms();
+  const { paymentConfig, donationWhatsappNumber } = await getSiteCms();
   return (
     <>
       <Header />
@@ -57,7 +57,10 @@ export default async function DonatePage() {
                     Choose a transfer account, enter your donation details, and submit for verification.
                   </p>
                 </div>
-                <DonateForm paymentConfig={paymentConfig} />
+                <DonateForm
+                  paymentConfig={paymentConfig}
+                  whatsappNumber={donationWhatsappNumber}
+                />
               </div>
             </div>
 

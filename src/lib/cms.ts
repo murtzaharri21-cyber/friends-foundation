@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import crypto from "node:crypto";
 import { db } from "@/db";
 import { siteCms } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import {
   appealPhotos,
   areas,
@@ -18,13 +18,20 @@ import {
   type HeroSlide,
   type ThematicSlide,
 } from "./content";
-import { site } from "./nav";
+import { areaLinks, site } from "./nav";
 import { HEADLINE_IMPACT_STATS, type ImpactStatCard, type StatIconName } from "@/components/ImpactStatsBand";
 import { DEFAULT_PAYMENT_CONFIG, type PaymentSystemConfig } from "./banking";
+import { CMS_SECTION_KEYS } from "./cms-keys";
 
 export type SiteInfoConfig = {
   name: string;
   logo: string;
+  headerTagline?: string;
+  footerDonateLabel?: string;
+  footerProgrammesHeading?: string;
+  footerOrganizationHeading?: string;
+  footerContactHeading?: string;
+  footerBottomTagline?: string;
   donationButtonLabel?: string;
   donationButtonColor?: "green" | "blue" | "red" | "purple";
   phoneLabel: string;
@@ -128,6 +135,7 @@ export type CmsState = {
   featureUpdates: FeatureUpdateItem[];
   pakistanGallery: AppealPhoto[];
   paymentConfig: PaymentSystemConfig;
+  donationWhatsappNumber: string;
   careersSection: CareersSectionConfig;
 };
 
@@ -135,6 +143,12 @@ export const DEFAULT_CMS_STATE: CmsState = {
   siteInfo: {
     name: site.name,
     logo: "/images/ff/FFPAk.logo.png",
+    headerTagline: "Working across Pakistan since 2001",
+    footerDonateLabel: "Donate",
+    footerProgrammesHeading: "What we do",
+    footerOrganizationHeading: "Organisation",
+    footerContactHeading: "Get in touch",
+    footerBottomTagline: "Health · Clean water · Education · Women’s rights · Emergency relief",
     donationButtonLabel: "Donate",
     donationButtonColor: "red",
     phoneLabel: site.phone.label,
@@ -192,6 +206,7 @@ export const DEFAULT_CMS_STATE: CmsState = {
   featureUpdates,
   pakistanGallery: appealPhotos,
   paymentConfig: DEFAULT_PAYMENT_CONFIG,
+  donationWhatsappNumber: process.env.DONATION_WHATSAPP_NUMBER?.replace(/\D/g, "") ?? "",
   careersSection: {
     overviewTitle: "Job Opportunities",
     overviewIntro: "Explore career and procurement updates from Friends Foundation Pakistan. Current openings and notices are listed in the sections below.",
@@ -225,19 +240,16 @@ export const DEFAULT_CMS_STATE: CmsState = {
 
 export type CmsSectionKey = keyof CmsState;
 
-export const CMS_KEYS: CmsSectionKey[] = [
-  "siteInfo",
-  "heroSlides",
-  "impactBand",
-  "storySection",
-  "thematicSlides",
-  "areas",
-  "healthSection",
-  "featureUpdates",
-  "pakistanGallery",
-  "paymentConfig",
-  "careersSection",
-];
+function sortByThematicOrder<T extends { slug: string }>(items: T[]): T[] {
+  const orderBySlug = new Map(areaLinks.map(({ slug }, index) => [slug, index]));
+  return [...items].sort(
+    (a, b) =>
+      (orderBySlug.get(a.slug) ?? Number.MAX_SAFE_INTEGER) -
+      (orderBySlug.get(b.slug) ?? Number.MAX_SAFE_INTEGER),
+  );
+}
+
+export const CMS_KEYS: CmsSectionKey[] = [...CMS_SECTION_KEYS];
 
 export function phoneToHref(phone: string): string {
   const cleaned = phone.replace(/[^+\d]/g, "");
@@ -253,7 +265,10 @@ export const getSiteCms = cache(async (): Promise<CmsState> => {
         try {
           const parsed = JSON.parse(row.value);
           if (parsed !== null && parsed !== undefined) {
-            (merged as Record<string, unknown>)[row.key] = parsed;
+            (merged as Record<string, unknown>)[row.key] =
+              row.key === "siteInfo" && typeof parsed === "object" && !Array.isArray(parsed)
+                ? { ...merged.siteInfo, ...parsed }
+                : parsed;
           }
         } catch {
           // Ignore malformed row and keep default
@@ -263,6 +278,12 @@ export const getSiteCms = cache(async (): Promise<CmsState> => {
   } catch {
     // Fallback cleanly to defaults if DB is unreachable during static build
   }
+  if (Array.isArray(merged.thematicSlides)) {
+    merged.thematicSlides = sortByThematicOrder(merged.thematicSlides);
+  }
+  if (Array.isArray(merged.areas)) {
+    merged.areas = sortByThematicOrder(merged.areas);
+  }
   return merged;
 });
 
@@ -270,46 +291,206 @@ export const getSiteCms = cache(async (): Promise<CmsState> => {
 
 export const ADMIN_COOKIE_NAME = "ff_admin_session";
 export const ADMIN_PASSWORD_DB_KEY = "__admin_passcode__";
+export const ADMIN_CREDENTIALS_DB_KEY = "__admin_credentials__";
 
-function signToken(secret: string): string {
+export type AdminCredentialRecord = {
+  username: string;
+  salt: string;
+  passwordHash: string;
+  disabled?: boolean;
+};
+
+type AdminCredentialSource = {
+  record: AdminCredentialRecord;
+  legacyPassword?: string;
+};
+
+function safeEqual(left: string, right: string): boolean {
+  const leftDigest = crypto.createHash("sha256").update(left).digest();
+  const rightDigest = crypto.createHash("sha256").update(right).digest();
+  return crypto.timingSafeEqual(leftDigest, rightDigest);
+}
+
+function derivePasswordHash(password: string, salt: string): Promise<Buffer> {
+  return new Promise((resolve, reject) => {
+    crypto.scrypt(password, salt, 64, (error, derivedKey) => {
+      if (error) reject(error);
+      else resolve(derivedKey);
+    });
+  });
+}
+
+async function createCredentialRecord(username: string, password: string): Promise<AdminCredentialRecord> {
+  const salt = crypto.randomBytes(16).toString("hex");
+  return {
+    username,
+    salt,
+    passwordHash: (await derivePasswordHash(password, salt)).toString("hex"),
+  };
+}
+
+async function getAdminCredentialSource(): Promise<AdminCredentialSource | null> {
+  let rows: { key: string; value: string }[];
+  try {
+    rows = await db
+      .select({ key: siteCms.key, value: siteCms.value })
+      .from(siteCms)
+      .where(inArray(siteCms.key, [ADMIN_CREDENTIALS_DB_KEY, ADMIN_PASSWORD_DB_KEY]));
+  } catch (error) {
+    if (process.env.ADMIN_PASSWORD?.trim()) {
+      console.error("Could not read stored admin credentials; checking environment credentials", error);
+    } else {
+      throw error;
+    }
+    rows = [];
+  }
+
+  const stored = rows.find((row) => row.key === ADMIN_CREDENTIALS_DB_KEY);
+  if (stored) {
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(stored.value);
+    } catch (error) {
+      console.error("Stored admin credentials are invalid JSON", error);
+      throw new Error("Stored admin credentials are invalid.");
+    }
+    if (typeof parsed !== "object" || parsed === null) {
+      throw new Error("Stored admin credentials are invalid.");
+    }
+    const record = parsed as Partial<AdminCredentialRecord>;
+    if (record.disabled === true) return null;
+    if (
+      typeof record.username === "string" &&
+      typeof record.salt === "string" &&
+      typeof record.passwordHash === "string" &&
+      /^[a-f0-9]{32}$/i.test(record.salt) &&
+      /^[a-f0-9]{128}$/i.test(record.passwordHash)
+    ) {
+      return { record: record as AdminCredentialRecord };
+    }
+    throw new Error("Stored admin credentials are invalid.");
+  }
+
+  const legacy = rows.find((row) => row.key === ADMIN_PASSWORD_DB_KEY);
+  if (legacy) {
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(legacy.value);
+    } catch (error) {
+      console.error("Stored legacy admin passcode is invalid JSON", error);
+      throw new Error("Stored admin credentials are invalid.");
+    }
+    if (typeof parsed === "string" && parsed.length > 0) {
+      const username = process.env.ADMIN_ID?.trim() || "Friendsfoundation";
+      const record = await createCredentialRecord(username, parsed);
+      return { record, legacyPassword: parsed };
+    }
+  }
+
+  const password = process.env.ADMIN_PASSWORD;
+  if (!password) return null;
+  const username = process.env.ADMIN_ID?.trim() || "Friendsfoundation";
+  const salt = crypto.createHash("sha256").update(`ff-admin:${username.toLowerCase()}`).digest("hex").slice(0, 32);
+  return {
+    record: {
+      username,
+      salt,
+      passwordHash: (await derivePasswordHash(password, salt)).toString("hex"),
+    },
+  };
+}
+
+function signToken(username: string, passwordHash: string): string {
   return crypto
-    .createHmac("sha256", process.env.DATABASE_URL || "ffpak-admin-secret")
-    .update(`ffpak:${secret}`)
+    .createHmac("sha256", process.env.ADMIN_SESSION_SECRET || process.env.DATABASE_URL || passwordHash)
+    .update(`ffpak:${username.toLowerCase()}:${passwordHash}`)
     .digest("hex");
 }
 
-export async function getAdminPasscode(): Promise<string | null> {
-  if (process.env.ADMIN_PASSWORD && process.env.ADMIN_PASSWORD.trim().length > 0) {
-    return process.env.ADMIN_PASSWORD.trim();
-  }
-  try {
-    const rows = await db.select().from(siteCms).where(eq(siteCms.key, ADMIN_PASSWORD_DB_KEY));
-    if (rows[0]?.value) {
-      const parsed = JSON.parse(rows[0].value);
-      if (typeof parsed === "string" && parsed.trim().length > 0) {
-        return parsed.trim();
-      }
-    }
-  } catch {
-    // No passcode configured
-  }
-  return null;
+export async function getAdminCredentialState(): Promise<{
+  credential: AdminCredentialRecord | null;
+  enabled: boolean;
+}> {
+  const source = await getAdminCredentialSource();
+  return {
+    credential: source?.record ?? null,
+    enabled: source !== null,
+  };
 }
 
-export function computeSessionCookieValue(passcode: string): string {
-  return signToken(passcode);
+export async function verifyAdminCredentials(username: string, password: string): Promise<{
+  credential: AdminCredentialRecord | null;
+  valid: boolean;
+  legacy: boolean;
+}> {
+  const source = await getAdminCredentialSource();
+  if (!source) return { credential: null, valid: false, legacy: false };
+
+  const userMatches = safeEqual(username.trim().toLowerCase(), source.record.username.toLowerCase());
+  const passwordMatches = source.legacyPassword !== undefined
+    ? safeEqual(password, source.legacyPassword)
+    : safeEqual(
+        (await derivePasswordHash(password, source.record.salt)).toString("hex"),
+        source.record.passwordHash,
+      );
+  return {
+    credential: source.record,
+    valid: userMatches && passwordMatches,
+    legacy: source.legacyPassword !== undefined,
+  };
 }
 
-export async function isAdminAuthorized(): Promise<{ authorized: boolean; passwordEnabled: boolean }> {
-  const passcode = await getAdminPasscode();
-  if (!passcode) {
-    return { authorized: true, passwordEnabled: false };
+export async function storeAdminCredential(record: AdminCredentialRecord): Promise<void> {
+  const value = JSON.stringify(record);
+  await db.transaction(async (tx) => {
+    await tx
+      .insert(siteCms)
+      .values({ key: ADMIN_CREDENTIALS_DB_KEY, value, updatedAt: new Date() })
+      .onConflictDoUpdate({
+        target: siteCms.key,
+        set: { value, updatedAt: new Date() },
+      });
+    await tx.delete(siteCms).where(eq(siteCms.key, ADMIN_PASSWORD_DB_KEY));
+  });
+}
+
+export async function disableAdminCredential(): Promise<void> {
+  const value = JSON.stringify({ disabled: true });
+  await db.transaction(async (tx) => {
+    await tx
+      .insert(siteCms)
+      .values({ key: ADMIN_CREDENTIALS_DB_KEY, value, updatedAt: new Date() })
+      .onConflictDoUpdate({
+        target: siteCms.key,
+        set: { value, updatedAt: new Date() },
+      });
+    await tx.delete(siteCms).where(eq(siteCms.key, ADMIN_PASSWORD_DB_KEY));
+  });
+}
+
+export async function hashAdminPassword(username: string, password: string): Promise<AdminCredentialRecord> {
+  return createCredentialRecord(username, password);
+}
+
+export function computeSessionCookieValue(username: string, passwordHash: string): string {
+  return signToken(username, passwordHash);
+}
+
+export async function isAdminAuthorized(): Promise<{
+  authorized: boolean;
+  passwordEnabled: boolean;
+  username: string | null;
+}> {
+  const { credential, enabled } = await getAdminCredentialState();
+  if (!credential) {
+    return { authorized: false, passwordEnabled: enabled, username: null };
   }
   const jar = await cookies();
   const token = jar.get(ADMIN_COOKIE_NAME)?.value;
-  const expected = computeSessionCookieValue(passcode);
+  const expected = computeSessionCookieValue(credential.username, credential.passwordHash);
   return {
-    authorized: Boolean(token && token === expected),
+    authorized: Boolean(token && safeEqual(token, expected)),
     passwordEnabled: true,
+    username: credential.username,
   };
 }

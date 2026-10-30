@@ -157,18 +157,35 @@ export default async function AboutPage() {
           </div>
         </section>
 
-        <section className="bg-mist/60 py-14">
+        <section id="policies" className="bg-mist/60 py-16 md:py-20">
           <div className="container-ff">
-            <div className="max-w-2xl">
-              <p className="font-sans text-[12px] font-extrabold uppercase tracking-[0.14em] text-brand">
-                Accountability
-              </p>
-              <h2 className="mt-1 text-2xl md:text-3xl">Our policies and safeguards</h2>
-              <p className="mt-2 text-[15.5px] text-slate-600">
-                Open a policy to learn how we protect people, manage resources, and maintain accountability.
-              </p>
+            <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+              <div className="max-w-2xl">
+                <p className="font-sans text-[12px] font-extrabold uppercase tracking-[0.14em] text-brand">
+                  Governance &amp; Safeguards
+                </p>
+                <h2 className="mt-1 text-2xl md:text-3xl">Our policies and safeguards</h2>
+                <p className="mt-2 text-[15.5px] text-slate-600">
+                  Open any policy to learn how we protect people, manage donor resources, and ensure transparency. Each policy is formalized in our institutional manual.
+                </p>
+              </div>
+
+              <div className="shrink-0">
+                <a
+                  href="/docs/friends-foundation-profile-and-policies.pdf"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-primary inline-flex items-center gap-2"
+                >
+                  <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4">
+                    <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
+                  </svg>
+                  Download Policy Document (PDF)
+                </a>
+              </div>
             </div>
-            <div className="mt-7 grid gap-4 lg:grid-cols-2">
+
+            <div className="mt-8 grid gap-4 lg:grid-cols-2">
               <FaqAccordion
                 allowMultiple
                 defaultOpenIndex={null}
@@ -176,6 +193,11 @@ export default async function AboutPage() {
                   category: "Institutional Safeguard",
                   question: p.name,
                   answer: p.desc,
+                  link: {
+                    label: "View in Official PDF (Page 8)",
+                    href: "/docs/friends-foundation-profile-and-policies.pdf#page=8",
+                    external: true,
+                  },
                 }))}
               />
               <FaqAccordion
@@ -185,6 +207,11 @@ export default async function AboutPage() {
                   category: "Governance & Operations",
                   question: p.name,
                   answer: p.desc,
+                  link: {
+                    label: "View in Official PDF (Page 8)",
+                    href: "/docs/friends-foundation-profile-and-policies.pdf#page=8",
+                    external: true,
+                  },
                 }))}
               />
             </div>

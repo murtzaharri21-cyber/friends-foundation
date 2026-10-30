@@ -5,6 +5,7 @@ import { desc } from "drizzle-orm";
 import { isAdminAuthorized } from "@/lib/cms";
 import { appealPhotos, galleryPhotos, img } from "@/lib/content";
 import { saveMedia } from "@/lib/media-storage";
+import sharp from "sharp";
 
 const ALLOWED_TYPES = new Set([
   "image/jpeg",
@@ -79,12 +80,21 @@ export async function POST(req: NextRequest) {
     }
 
     const buf = Buffer.from(await file.arrayBuffer());
-    const storagePath = await saveMedia(buf, file.name);
+    const shouldOptimize = ["image/jpeg", "image/jpg", "image/png", "image/webp"].includes(file.type);
+    const optimized = shouldOptimize
+      ? await sharp(buf)
+          .rotate()
+          .resize({ width: 1920, height: 1920, fit: "inside", withoutEnlargement: true })
+          .webp({ quality: 80 })
+          .toBuffer()
+      : buf;
+    const storedName = shouldOptimize ? `${file.name.replace(/\.[^.]+$/, "")}.webp` : file.name;
+    const storagePath = await saveMedia(optimized, storedName);
     const [inserted] = await db
       .insert(uploadedMedia)
       .values({
         filename: file.name.slice(0, 240) || "upload.jpg",
-        mimeType: file.type,
+        mimeType: shouldOptimize ? "image/webp" : file.type,
         storagePath,
       })
       .returning({ id: uploadedMedia.id, filename: uploadedMedia.filename });

@@ -6,6 +6,7 @@ export type AccordionItem = {
   question: string;
   answer: string;
   category?: string;
+  link?: { label: string; href: string; external?: boolean };
 };
 
 export default function FaqAccordion({
@@ -105,7 +106,22 @@ export default function FaqAccordion({
             >
               <div className="overflow-hidden">
                 <div className="border-t border-line/70 px-5 pb-5 pt-3 text-[15px] leading-relaxed text-slate-700 sm:px-6 sm:pb-6">
-                  {item.answer}
+                  <p>{item.answer}</p>
+                  {item.link && (
+                    <div className="mt-3.5 pt-2.5 border-t border-slate-100 flex items-center justify-between">
+                      <a
+                        href={item.link.href}
+                        target={item.link.external !== false ? "_blank" : undefined}
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 rounded-xl bg-mist px-3 py-1.5 text-[13px] font-bold text-brand transition-all hover:bg-brand hover:text-white"
+                      >
+                        <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4">
+                          <path d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" />
+                        </svg>
+                        {item.link.label} &rarr;
+                      </a>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -115,3 +131,4 @@ export default function FaqAccordion({
     </div>
   );
 }
+

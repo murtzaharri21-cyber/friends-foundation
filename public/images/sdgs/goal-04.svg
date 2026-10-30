@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-labelledby="title">
+  <title id="title">Goal 4: Quality Education</title>
+  <rect width="200" height="200" fill="#c5192d"/>
+  <text x="16" y="34" fill="#fff" font-family="Arial,sans-serif" font-size="24" font-weight="700">4</text>
+  <path d="M100 78c-17-13-37-15-58-10v67c22-5 41-2 58 11m0-68c17-13 37-15 58-10v67c-22-5-41-2-58 11z" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="7"/>
+  <path d="M100 79v67m-43-48c11-2 21 0 30 5m56-5c-11-2-21 0-30 5" fill="none" stroke="#fff" stroke-linecap="round" stroke-width="5"/>
+</svg>

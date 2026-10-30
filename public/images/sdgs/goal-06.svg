@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-labelledby="title">
+  <title id="title">Goal 6: Clean Water and Sanitation</title>
+  <rect width="200" height="200" fill="#26bde2"/>
+  <text x="16" y="34" fill="#fff" font-family="Arial,sans-serif" font-size="24" font-weight="700">6</text>
+  <path d="M100 53c-18 25-42 51-42 76a42 42 0 0 0 84 0c0-25-24-51-42-76z" fill="none" stroke="#fff" stroke-linejoin="round" stroke-width="8"/>
+  <path d="M77 130c5 11 14 17 26 17m-36-5c5 4 11 6 17 7" fill="none" stroke="#fff" stroke-linecap="round" stroke-width="6"/>
+</svg>

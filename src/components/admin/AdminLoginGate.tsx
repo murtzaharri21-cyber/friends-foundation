@@ -7,7 +7,8 @@ import { PhoneIcon, MailIcon } from "@/components/Icons";
 
 export default function AdminLoginGate({ siteName, logo }: { siteName: string; logo: string }) {
   const router = useRouter();
-  const [passcode, setPasscode] = useState("");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -19,11 +20,11 @@ export default function AdminLoginGate({ siteName, logo }: { siteName: string; l
       const res = await fetch("/api/admin/auth", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "login", passcode }),
+        body: JSON.stringify({ action: "login", username, password }),
       });
       const json = (await res.json()) as { error?: string };
       if (!res.ok) {
-        throw new Error(json.error || "Invalid passcode.");
+        throw new Error(json.error || "Invalid administrator ID or password.");
       }
       router.refresh();
     } catch (err) {
@@ -68,17 +69,33 @@ export default function AdminLoginGate({ siteName, logo }: { siteName: string; l
 
           <form onSubmit={onSubmit} className="mt-6 space-y-5">
             <div>
-              <label htmlFor="admin-passcode" className="label">
-                Admin Passcode
+              <label htmlFor="admin-username" className="label">
+                Admin ID
               </label>
               <input
-                id="admin-passcode"
-                type="password"
+                id="admin-username"
+                type="text"
                 required
                 autoFocus
-                value={passcode}
-                onChange={(e) => setPasscode(e.target.value)}
-                placeholder="Enter your passcode"
+                autoComplete="username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="Enter your admin ID"
+                className="field"
+              />
+            </div>
+            <div>
+              <label htmlFor="admin-password" className="label">
+                Password
+              </label>
+              <input
+                id="admin-password"
+                type="password"
+                required
+                autoComplete="current-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter your password"
                 className="field"
               />
             </div>
@@ -90,7 +107,7 @@ export default function AdminLoginGate({ siteName, logo }: { siteName: string; l
             )}
 
             <button type="submit" disabled={loading} className="btn btn-primary w-full disabled:opacity-60">
-              {loading ? "Signing in…" : "Open Admin Dashboard"}
+              {loading ? "Signing in…" : "Sign in to Admin"}
             </button>
           </form>
 

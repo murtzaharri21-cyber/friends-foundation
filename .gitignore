@@ -12,3 +12,7 @@ tmp/
 src/friends-foundation/
 tsconfig.tsbuildinfo
 npm-debug.log*
+
+.vercel
+.env*
+.playwright-mcp/

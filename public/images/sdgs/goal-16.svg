@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-labelledby="title">
+  <title id="title">Goal 16: Peace, Justice and Strong Institutions</title>
+  <rect width="200" height="200" fill="#00689d"/>
+  <text x="16" y="34" fill="#fff" font-family="Arial,sans-serif" font-size="24" font-weight="700">16</text>
+  <path d="M100 69v86m-36 0h72m-36-86-45 19h90z" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="7"/>
+  <path d="m64 88-19 31h38zm72 0-19 31h38z" fill="none" stroke="#fff" stroke-linejoin="round" stroke-width="6"/>
+  <path d="M45 119c4 11 30 11 38 0m34 0c4 11 30 11 38 0" fill="none" stroke="#fff" stroke-linecap="round" stroke-width="6"/>
+</svg>

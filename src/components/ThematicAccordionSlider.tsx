@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
 import type { ThematicSlide } from "@/lib/content";
 import { ArrowRightIcon } from "./Icons";
@@ -86,10 +87,13 @@ export default function ThematicAccordionSlider({ slides }: { slides: ThematicSl
               className="group relative flex h-full min-w-[68px] cursor-pointer select-none overflow-hidden focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-white"
             >
               {/* Full-bleed background photo when expanded */}
-              <img
+              <Image
                 src={slide.image}
                 alt={slide.title}
-                loading={i < 2 ? "eager" : "lazy"}
+                fill
+                sizes="(min-width: 768px) 25vw, 100vw"
+                quality={75}
+                loading="lazy"
                 className={`pointer-events-none absolute inset-0 h-full w-full object-cover object-center transition-all duration-700 ${
                   isOpen ? "scale-100 opacity-100" : "scale-105 opacity-0"
                 }`}
@@ -171,10 +175,14 @@ export default function ThematicAccordionSlider({ slides }: { slides: ThematicSl
             <div key={slide.slug} className="overflow-hidden">
               {isOpen ? (
                 <div className="relative flex min-h-[360px] flex-col justify-end p-6">
-                  <img
+                  <Image
                     src={slide.image}
                     alt={slide.title}
-                    className="absolute inset-0 h-full w-full object-cover"
+                    fill
+                    sizes="100vw"
+                    quality={75}
+                    loading="lazy"
+                    className="object-cover"
                   />
                   <div
                     aria-hidden="true"

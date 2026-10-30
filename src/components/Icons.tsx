@@ -90,6 +90,14 @@ export function CloseIcon({ className = "h-5 w-5" }: IconProps) {
   );
 }
 
+export function WhatsappIcon({ className = "h-4 w-4" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden="true">
+      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H1.621l7.244-8.425L2.25 12.29h8.485l-3.253 3.958 6.528 1.621z" />
+    </svg>
+  );
+}
+
 export function SocialIcon({ name, className = "h-4 w-4" }: { name: string; className?: string }) {
   switch (name) {
     case "Facebook":

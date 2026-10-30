@@ -74,8 +74,7 @@ export default async function AdminPage({
       initialDonationError={donationResult.error}
       initialContacts={contactRows}
       initialLibrary={initialLibrary}
-      initialPasswordEnabled={auth.passwordEnabled}
-      envPasswordLocked={Boolean(process.env.ADMIN_PASSWORD && process.env.ADMIN_PASSWORD.trim().length > 0)}
+      initialAdminUsername={auth.username ?? ""}
       initialTab={
         sp?.tab &&
         ["overview", "banks", "hero", "impact", "story", "programmes", "stories", "gallery", "careers", "donations", "contacts", "settings"].includes(

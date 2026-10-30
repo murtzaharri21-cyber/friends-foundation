@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-labelledby="title">
+  <title id="title">Goal 3: Good Health and Well-being</title>
+  <rect width="200" height="200" fill="#4c9f38"/>
+  <text x="16" y="34" fill="#fff" font-family="Arial,sans-serif" font-size="24" font-weight="700">3</text>
+  <path d="M100 145 57 104C31 79 66 43 92 68l8 8 8-8c26-25 61 11 35 36z" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="8"/>
+  <path d="M100 83v39m-19-20h38" stroke="#fff" stroke-linecap="round" stroke-width="9"/>
+</svg>

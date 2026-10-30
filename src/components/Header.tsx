@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { mainNav } from "@/lib/nav";
@@ -37,7 +38,7 @@ export default function Header() {
             </a>
           </div>
           <p className="hidden text-[11.5px] font-bold uppercase tracking-[0.12em] text-white/80 lg:block">
-            Working across Pakistan since 2001
+            {siteInfo.headerTagline || "Working across Pakistan since 2001"}
           </p>
           <div className="flex items-center">
             {siteInfo.socials.map((s) => (
@@ -57,16 +58,19 @@ export default function Header() {
       </div>
 
       {/* Floating header card */}
-      <header className="sticky top-0 z-50 py-2.5">
-        <div className="container-ff">
-          <div className="rounded-[24px] border border-line/70 bg-white/92 px-4 py-2.5 shadow-[0_16px_38px_rgba(7,18,42,0.08)] backdrop-blur-md sm:px-5">
+      <header className="sticky top-0 z-50">
+        <div className="py-2.5">
+          <div className="container-ff">
+            <div className="rounded-[24px] border border-line/70 bg-white/92 px-4 py-2.5 shadow-[0_16px_38px_rgba(7,18,42,0.08)] backdrop-blur-md sm:px-5">
             <div className="flex items-center justify-between gap-5">
               <Link href="/" className="flex shrink-0 items-center" aria-label={`${siteInfo.name}, home`}>
-                <img
+                <Image
                   src={siteInfo.logo}
                   alt={siteInfo.name}
                   width={215}
                   height={70}
+                  priority
+                  unoptimized={/^https?:\/\//i.test(siteInfo.logo)}
                   className="h-[52px] w-auto object-contain sm:h-[62px]"
                 />
               </Link>
@@ -177,6 +181,27 @@ export default function Header() {
                 </Link>
               </div>
             )}
+          </div>
+        </div>
+      </div>
+
+      {/* Animated red line with pulse sign in movement */}
+        <div className="header-lifeline-wrap" aria-hidden="true">
+          <div className="header-lifeline-track">
+            <div className="header-lifeline-pulse">
+              <svg
+                viewBox="0 0 64 22"
+                className="h-3.5 w-16 text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.95)]"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M0 11h16l3.5-8 5.5 16 4.5-12 3.5 7 3-3h28" />
+              </svg>
+              <span className="header-lifeline-dot" />
+            </div>
           </div>
         </div>
       </header>

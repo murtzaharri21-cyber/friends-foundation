@@ -7,6 +7,12 @@ import { site } from "@/lib/nav";
 const FALLBACK_SITE_INFO: SiteInfoConfig = {
   name: site.name,
   logo: "/images/ff/FFPAk.logo.png",
+  headerTagline: "Working across Pakistan since 2001",
+  footerDonateLabel: "Donate",
+  footerProgrammesHeading: "What we do",
+  footerOrganizationHeading: "Organisation",
+  footerContactHeading: "Get in touch",
+  footerBottomTagline: "Health · Clean water · Education · Women’s rights · Emergency relief",
   donationButtonLabel: "Donate",
   donationButtonColor: "red",
   phoneLabel: site.phone.label,

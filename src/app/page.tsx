@@ -9,6 +9,7 @@ import ImpactExplorer from "@/components/ImpactExplorer";
 import CampaignSpotlight from "@/components/CampaignSpotlight";
 import AnimatedNumber from "@/components/AnimatedNumber";
 import PartnerMarquee from "@/components/PartnerMarquee";
+import AllianceDonorsBand from "@/components/AllianceDonorsBand";
 import FaqAccordion from "@/components/FaqAccordion";
 import { ArrowRightIcon, CheckIcon } from "@/components/Icons";
 import { devPartners, govPartners, img, regions } from "@/lib/content";
@@ -52,24 +53,26 @@ export default async function Home() {
             </div>
 
             <div className="lg:col-span-5">
-              <div className="card overflow-hidden">
+              <figure className="overflow-hidden rounded-[24px] border border-line bg-white p-3 shadow-[0_20px_50px_rgba(44,117,165,0.1)]">
                 <img
                   src={storySection.image}
                   alt="A community water filtration plant run with local residents"
                   loading="lazy"
-                  className="aspect-[16/10] w-full object-cover"
+                  className="aspect-[16/11] w-full rounded-[18px] object-cover"
                 />
-                <div className="p-6">
-                  <h3>Our mission</h3>
-                  <p className="mt-3 text-[1.02rem] leading-relaxed text-ink/80">{storySection.mission}</p>
+                <figcaption className="p-4 pt-3.5">
+                  <span className="font-display text-lg font-bold text-deep-2">Grassroots Community Presence</span>
+                  <p className="mt-1 text-sm leading-relaxed text-slate-600">
+                    Over 24 years of trusted grassroots partnerships delivering maternal healthcare, clean water, and disaster resilience across Pakistan.
+                  </p>
                   <Link
-                    href="/about#vision"
-                    className="mt-5 inline-flex items-center gap-1.5 text-[14.5px] font-bold text-brand hover:text-deep"
+                    href="/about#story"
+                    className="mt-3.5 inline-flex items-center gap-1.5 text-[14px] font-bold text-brand hover:text-deep"
                   >
-                    Vision &amp; mission <ArrowRightIcon className="h-4 w-4" />
+                    Learn more about our journey <ArrowRightIcon className="h-4 w-4" />
                   </Link>
-                </div>
-              </div>
+                </figcaption>
+              </figure>
             </div>
           </div>
         </section>
@@ -142,14 +145,48 @@ export default async function Home() {
 
         <CampaignSpotlight />
 
-        {/* Feature Updates Carousel */}
-        <section className="bg-mist/60 py-16 md:py-24">
+        {/* Latest Projects & Field Interventions (with Flood 2025 Spotlight) */}
+        <section className="border-y border-line/60 bg-gradient-to-b from-mist/70 to-white py-16 md:py-24">
           <div className="container-ff">
+            {/* Flood 2025 Priority Alert Banner */}
+            <div className="mb-10 overflow-hidden rounded-2xl border-2 border-red-500/30 bg-gradient-to-r from-red-950 via-rose-950 to-[#2c0c0c] p-6 text-white shadow-xl">
+              <div className="flex flex-col items-start justify-between gap-6 md:flex-row md:items-center">
+                <div className="flex items-start gap-4">
+                  <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-red-600/80 text-2xl shadow-inner">
+                    🚨
+                  </span>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="inline-block rounded-full bg-red-500 px-2.5 py-0.5 text-[11px] font-extrabold uppercase tracking-wider text-white">
+                        Priority Relief Intervention
+                      </span>
+                      <span className="text-xs text-red-200">Emergency Field Response · 2025</span>
+                    </div>
+                    <h3 className="mt-1 text-xl font-bold text-white sm:text-2xl">
+                      Flood 2025: Emergency Medical Camps &amp; Clean Water
+                    </h3>
+                    <p className="mt-1 max-w-2xl text-sm text-red-100/90">
+                      Frontline disaster response across flood-affected union councils in South Punjab, Khyber Pakhtunkhwa, and Sindh: providing emergency medical care, 3,468 hygiene kits, and emergency safe water supplies.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex shrink-0 flex-wrap gap-3">
+                  <Link href="/donate?purpose=Emergency+relief" className="btn btn-donation shadow-lg">
+                    Support Flood 2025 Relief
+                  </Link>
+                  <Link href="/our-work/humanitarian" className="btn btn-light">
+                    Humanitarian Work
+                  </Link>
+                </div>
+              </div>
+            </div>
+
             <div className="flex flex-wrap items-end justify-between gap-6">
               <div className="max-w-2xl">
-                <h2>Stories &amp; work from the field</h2>
+                <span className="text-xs font-bold uppercase tracking-wider text-brand">Field Operations &amp; Impact</span>
+                <h2 className="mt-1">Latest Projects &amp; Field Interventions</h2>
                 <p className="mt-3 text-[1.06rem] text-ink/75">
-                  Health camps, safe water committees, flood recovery and girls’ schooling across Pakistan.
+                  Health camps, safe water systems, Flood 2025 recovery, maternal healthcare, and girls’ schooling across Pakistan.
                 </p>
               </div>
               <Link href="/media" className="btn btn-ghost">
@@ -287,19 +324,26 @@ export default async function Home() {
           </div>
         </section>
 
-        {/* Continuously moving government and development partner logo rows */}
-        <section className="border-y border-line bg-[#f3f8fc] py-14 md:py-16">
-          <div className="mx-auto grid w-[min(1500px,100%-2.5rem)] gap-10 lg:grid-cols-2 lg:gap-12">
-            <PartnerMarquee
-              heading="Governmental Partners"
-              partners={govPartners.map((partner) => ({ ...partner, logo: img(partner.logo) }))}
-            />
-            <PartnerMarquee
-              heading="Partners NGO/INGOs"
-              partners={devPartners.map((partner) => ({ ...partner, logo: img(partner.logo) }))}
-            />
-          </div>
-        </section>
+        <AllianceDonorsBand />
+
+        {/* Two distinct full-width partner scrolling rows */}
+        {/* Government Partners Section (Green) */}
+        <PartnerMarquee
+          theme="green"
+          eyebrow="Institutional Collaboration"
+          heading="Governmental Partners"
+          description="Working alongside federal, provincial, and municipal authorities, health secretariats, and disaster management bodies across Pakistan."
+          partners={govPartners.map((partner) => ({ ...partner, logo: img(partner.logo) }))}
+        />
+
+        {/* NGO & INGO Partners Section (Blue) */}
+        <PartnerMarquee
+          theme="blue"
+          eyebrow="Multilateral Alliances"
+          heading="Partner NGO & INGOs"
+          description="Trusted long-term partnerships with leading international development agencies, multilateral donors, and national humanitarian networks."
+          partners={devPartners.map((partner) => ({ ...partner, logo: img(partner.logo) }))}
+        />
 
         {/* Where we work */}
         <section className="py-16 md:py-24">

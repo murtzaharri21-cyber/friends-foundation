@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import type { HeroSlide } from "@/lib/content";
@@ -99,6 +100,7 @@ export default function HeroSlider({ slides }: { slides: HeroSlide[] }) {
         {slides.map((s, i) => {
           const isCurrent = i === index;
           const isPrev = i === prevIndex && prevIndex !== index;
+          const isNext = i === (index + 1) % slides.length;
           const shouldScale = isPrev || (isCurrent && zoomed);
 
           return (
@@ -112,17 +114,23 @@ export default function HeroSlider({ slides }: { slides: HeroSlide[] }) {
               }}
               className="pointer-events-none absolute inset-0"
             >
-              <img
-                src={s.image}
-                alt={s.imageAlt}
-                loading="eager"
-                decoding="async"
-                style={{
-                  transform: shouldScale ? "scale(1.06)" : "scale(1)",
-                  transition: isCurrent || isPrev ? "transform 5400ms ease-out" : "none",
-                }}
-                className={`h-full w-full object-cover will-change-transform ${s.focalClass}`}
-              />
+              {(isCurrent || isPrev || isNext) && (
+                <Image
+                  src={s.image}
+                  alt={s.imageAlt}
+                  fill
+                  sizes="100vw"
+                  quality={75}
+                  priority={i === 0}
+                  loading={i === 0 ? undefined : "lazy"}
+                  unoptimized={/^https?:\/\//i.test(s.image)}
+                  style={{
+                    transform: shouldScale ? "scale(1.06)" : "scale(1)",
+                    transition: isCurrent || isPrev ? "transform 5400ms ease-out" : "none",
+                  }}
+                  className={`object-cover will-change-transform ${s.focalClass}`}
+                />
+              )}
 
               <div
                 className="absolute inset-0"
