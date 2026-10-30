@@ -59,23 +59,23 @@ export default function Header() {
 
       {/* Floating header card */}
       <header className="sticky top-0 z-50">
-        {/* Animated lifeline above the navigation */}
+        {/* Animated straight lifeline with moving pulse sign */}
         <div className="header-lifeline-wrap" aria-hidden="true">
-          <div className="header-lifeline-track">
+          <div className="header-lifeline-base" />
+          <div className="header-lifeline-pulse">
             <svg
-              viewBox="0 0 600 32"
-              preserveAspectRatio="none"
-              className="header-lifeline-wave"
+              viewBox="0 0 160 32"
+              className="header-lifeline-pulse-svg"
               fill="none"
-              vectorEffect="non-scaling-stroke"
-              strokeWidth="1.8"
-              strokeLinecap="round"
-              strokeLinejoin="round"
             >
               <path
-                className="header-lifeline-wave-path"
-                d="M0 16 H28 C38 16 42 13 50 13 S62 16 70 16 H94 L100 14 L106 20 L114 5 L122 23 L130 16 H148 C158 16 166 10 176 10 S194 16 204 16 H300 M300 16 H328 C338 16 342 13 350 13 S362 16 370 16 H394 L400 14 L406 20 L414 5 L422 23 L430 16 H448 C458 16 466 10 476 10 S494 16 504 16 H600"
+                d="M0 16 H40 L46 16 L50 10 L55 22 L62 2 L70 30 L76 16 L82 16 L87 11 L93 16 H160"
+                stroke="#dc2626"
+                strokeWidth="2.4"
+                strokeLinecap="round"
+                strokeLinejoin="round"
               />
+              <circle cx="62" cy="2" r="3" fill="#ffffff" stroke="#ef4444" strokeWidth="1.5" />
             </svg>
           </div>
         </div>
