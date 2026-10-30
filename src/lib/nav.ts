@@ -25,8 +25,8 @@ export const areaLinks = [
   { slug: "integrated-health", title: "Integrated Health" },
   { slug: "wash", title: "Water, Sanitation & Hygiene" },
   { slug: "women-empowerment", title: "Women Empowerment" },
-  { slug: "climate-resilience", title: "Climate Resilience" },
   { slug: "education", title: "Education" },
+  { slug: "climate-resilience", title: "Climate Resilience" },
   { slug: "governance", title: "Governance" },
   { slug: "humanitarian", title: "Humanitarian Response" },
 ];

@@ -91,8 +91,8 @@ export default function ThematicAccordionSlider({ slides }: { slides: ThematicSl
                 src={slide.image}
                 alt={slide.title}
                 fill
-                sizes="(min-width: 768px) 25vw, 100vw"
-                quality={75}
+                sizes="(min-width: 768px) 45vw, 100vw"
+                quality={90}
                 loading="lazy"
                 className={`pointer-events-none absolute inset-0 h-full w-full object-cover object-center transition-all duration-700 ${
                   isOpen ? "scale-100 opacity-100" : "scale-105 opacity-0"
@@ -180,7 +180,7 @@ export default function ThematicAccordionSlider({ slides }: { slides: ThematicSl
                     alt={slide.title}
                     fill
                     sizes="100vw"
-                    quality={75}
+                    quality={90}
                     loading="lazy"
                     className="object-cover"
                   />

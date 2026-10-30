@@ -5,7 +5,15 @@ import Footer from "@/components/Footer";
 import PageHeader from "@/components/PageHeader";
 import FilterableGallery from "@/components/FilterableGallery";
 import { SocialIcon } from "@/components/Icons";
-import { archivePhotos, caseStudies, categoriseCaption, galleryPhotos, img, pressClippings } from "@/lib/content";
+import {
+  archivePhotos,
+  caseStudies,
+  categoriseCaption,
+  galleryPhotos,
+  img,
+  pressClippings,
+  suppliedProgrammePhotos,
+} from "@/lib/content";
 import { getSiteCms } from "@/lib/cms";
 
 export const dynamic = "force-dynamic";
@@ -21,6 +29,7 @@ const ownPhotos = galleryPhotos.map((p) => ({
   caption: p.caption,
   category: categoriseCaption(p.caption),
 }));
+ownPhotos.push(...suppliedProgrammePhotos);
 
 const archive = archivePhotos.map((p) => ({ src: img(p.src), caption: p.caption, category: "Archive" }));
 
@@ -46,6 +55,10 @@ export default async function MediaPage() {
             <div className="flex flex-wrap items-end justify-between gap-4">
               <div>
                 <h2>Our programmes</h2>
+                <p className="mt-3 max-w-2xl text-[15.5px] text-ink/75">
+                  Field photographs from our programme archive, including health, clean water, education, women’s
+                  empowerment, climate resilience, governance and humanitarian response.
+                </p>
               </div>
               <p className="text-[14.5px] text-muted">
                 {ownPhotos.length} photos · filter by theme · click any photo to enlarge

@@ -38,7 +38,7 @@ export default function PartnerMarquee({
         aria-hidden="true"
       />
 
-      <div className="container-ff relative mb-10 text-center">
+      <div className="container-ff scroll-reveal relative mb-10 text-center">
         {eyebrow && (
           <span
             className={`inline-block rounded-full px-3.5 py-1 text-xs font-extrabold uppercase tracking-[0.14em] ${
@@ -65,7 +65,7 @@ export default function PartnerMarquee({
       </div>
 
       {/* Full-width scrolling row with edge fade masks */}
-      <div className="partner-flow-container group relative w-full overflow-hidden py-3">
+      <div className="partner-flow-container scroll-reveal scroll-reveal-scale group relative w-full overflow-hidden py-3">
         {/* Left & Right gradient fade masks */}
         <div
           className={`pointer-events-none absolute left-0 top-0 z-10 h-full w-16 sm:w-28 ${

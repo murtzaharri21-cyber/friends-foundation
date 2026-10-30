@@ -32,7 +32,7 @@ export default async function OurWorkPage() {
 
         <section className="bg-[#e8f6ee] py-14 md:py-18">
           <div className="container-ff">
-            <h2 className="mb-8">Explore our seven thematic areas</h2>
+            <h2 className="mb-8">Thematic Areas &amp; Key Interventions</h2>
             <ThematicAccordionSlider slides={thematicSlides} />
           </div>
         </section>

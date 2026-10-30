@@ -7,6 +7,7 @@ const projectRoot = dirname(fileURLToPath(import.meta.url));
 const nextConfig: NextConfig = {
   images: {
     formats: ["image/webp"],
+    qualities: [75, 90],
   },
   turbopack: {
     root: projectRoot,

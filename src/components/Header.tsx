@@ -185,26 +185,27 @@ export default function Header() {
         </div>
       </div>
 
-      {/* Animated red line with pulse sign in movement */}
-        <div className="header-lifeline-wrap" aria-hidden="true">
-          <div className="header-lifeline-track">
-            <div className="header-lifeline-pulse">
-              <svg
-                viewBox="0 0 64 22"
-                className="h-3.5 w-16 text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.95)]"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M0 11h16l3.5-8 5.5 16 4.5-12 3.5 7 3-3h28" />
-              </svg>
-              <span className="header-lifeline-dot" />
-            </div>
-          </div>
+      {/* Animated red line with pulse sign in movement below the header */}
+      <div className="header-lifeline-wrap" aria-hidden="true">
+        <div className="header-lifeline-track">
+          <svg
+            viewBox="0 0 600 32"
+            preserveAspectRatio="none"
+            className="header-lifeline-wave"
+            fill="none"
+            vectorEffect="non-scaling-stroke"
+            strokeWidth="2.2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path
+              className="header-lifeline-wave-path"
+              d="M0 16 H28 C38 16 42 13 50 13 S62 16 70 16 H94 L100 14 L106 20 L114 5 L122 23 L130 16 H148 C158 16 166 10 176 10 S194 16 204 16 H300 M300 16 H328 C338 16 342 13 350 13 S362 16 370 16 H394 L400 14 L406 20 L414 5 L422 23 L430 16 H448 C458 16 466 10 476 10 S494 16 504 16 H600"
+            />
+          </svg>
         </div>
-      </header>
+      </div>
+    </header>
     </>
   );
 }

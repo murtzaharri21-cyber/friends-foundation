@@ -10,27 +10,40 @@ const alliancePartners = [
 ];
 
 export default function AllianceDonorsBand() {
+  const renderPartnerLogos = (duplicate = false) => (
+    <ul
+      className="alliance-donors-logos"
+      aria-label={duplicate ? undefined : "Alliance partners and donors"}
+      aria-hidden={duplicate || undefined}
+    >
+      {alliancePartners.map((partner) => (
+        <li key={partner.name}>
+          <Image
+            src={`/images/ff/${partner.logo}`}
+            alt={partner.name}
+            width={partner.width}
+            height={partner.height}
+            loading="lazy"
+            draggable={false}
+          />
+        </li>
+      ))}
+    </ul>
+  );
+
   return (
     <section className="alliance-donors-band" aria-labelledby="alliance-donors-heading">
       <div className="alliance-donors-inner">
         <p className="alliance-donors-kicker">
           <span aria-hidden="true">—</span> Together We Grow <span aria-hidden="true">—</span>
         </p>
-        <h2 id="alliance-donors-heading">Our Alliance, Partnerships &amp; Donors</h2>
-        <ul className="alliance-donors-logos">
-          {alliancePartners.map((partner) => (
-            <li key={partner.name}>
-              <Image
-                src={`/images/ff/${partner.logo}`}
-                alt={partner.name}
-                width={partner.width}
-                height={partner.height}
-                loading="lazy"
-                draggable={false}
-              />
-            </li>
-          ))}
-        </ul>
+        <h2 id="alliance-donors-heading" className="scroll-reveal">Our Alliance, Partnerships &amp; Donors</h2>
+        <div className="alliance-donors-marquee scroll-reveal scroll-reveal-scale">
+          <div className="alliance-donors-track">
+            {renderPartnerLogos()}
+            {renderPartnerLogos(true)}
+          </div>
+        </div>
       </div>
     </section>
   );

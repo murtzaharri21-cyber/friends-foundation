@@ -11,6 +11,7 @@ import AnimatedNumber from "@/components/AnimatedNumber";
 import PartnerMarquee from "@/components/PartnerMarquee";
 import AllianceDonorsBand from "@/components/AllianceDonorsBand";
 import FaqAccordion from "@/components/FaqAccordion";
+import ScrollRevealObserver from "@/components/ScrollRevealObserver";
 import { ArrowRightIcon, CheckIcon } from "@/components/Icons";
 import { devPartners, govPartners, img, regions } from "@/lib/content";
 import { getSiteCms } from "@/lib/cms";
@@ -25,6 +26,7 @@ export default async function Home() {
     <>
       <Header />
       <main>
+        <ScrollRevealObserver />
         {/* Full-bleed Alkhidmat-style Auto-Crossfading Hero Banner + Quick Appeal Bar */}
         <HeroSlider slides={heroSlides} />
 
@@ -40,7 +42,7 @@ export default async function Home() {
         {/* Story + mission */}
         <section className="py-16 md:py-24">
           <div className="container-ff grid gap-12 lg:grid-cols-12 lg:gap-16">
-            <div className="lg:col-span-7">
+            <div className="scroll-reveal scroll-reveal-from-left lg:col-span-7">
               <h2>{storySection.heading}</h2>
               <div className="prose-ff mt-6 text-[1.08rem] leading-[1.78] text-ink/80">
                 {storySection.paragraphs.map((p, idx) => (
@@ -52,7 +54,7 @@ export default async function Home() {
               </Link>
             </div>
 
-            <div className="lg:col-span-5">
+            <div className="scroll-reveal scroll-reveal-from-right lg:col-span-5">
               <figure className="overflow-hidden rounded-[24px] border border-line bg-white p-3 shadow-[0_20px_50px_rgba(44,117,165,0.1)]">
                 <img
                   src={storySection.image}
@@ -81,8 +83,8 @@ export default async function Home() {
         <section className="bg-[#e8f6ee] py-16 md:py-22">
           <div className="container-ff">
             <div className="mb-9 flex flex-wrap items-end justify-between gap-6">
-              <div className="max-w-2xl">
-                <h2>Thematic Areas</h2>
+              <div className="scroll-reveal max-w-2xl">
+                <h2>Thematic Areas &amp; Key Interventions</h2>
                 <p className="mt-3 text-[1.06rem] text-ink/75">
                   Hover or tap any panel to explore our seven interconnected programmes — all delivered with local
                   community organisations across Pakistan.
@@ -93,14 +95,16 @@ export default async function Home() {
               </Link>
             </div>
 
-            <ThematicAccordionSlider slides={thematicSlides} />
+            <div className="scroll-reveal scroll-reveal-scale">
+              <ThematicAccordionSlider slides={thematicSlides} />
+            </div>
           </div>
         </section>
 
         {/* Health centres */}
         <section className="py-16 md:py-24">
           <div className="container-ff grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
-            <figure>
+            <figure className="scroll-reveal scroll-reveal-from-left">
               <div className="overflow-hidden rounded-[22px] border border-line bg-white p-2.5 shadow-[0_24px_60px_rgba(44,117,165,0.12)]">
                 <img
                   src={healthSection.image}
@@ -112,7 +116,7 @@ export default async function Home() {
               <figcaption className="mt-3 text-sm text-muted">{healthSection.imageCaption}</figcaption>
             </figure>
 
-            <div>
+            <div className="scroll-reveal scroll-reveal-from-right">
               <h2>{healthSection.heading}</h2>
               <p className="mt-5 text-[1.08rem] leading-relaxed text-ink/80">{healthSection.description}</p>
               <ul className="mt-7 grid gap-x-6 gap-y-3 sm:grid-cols-2">
@@ -149,23 +153,26 @@ export default async function Home() {
         <section className="border-y border-line/60 bg-gradient-to-b from-mist/70 to-white py-16 md:py-24">
           <div className="container-ff">
             {/* Flood 2025 Priority Alert Banner */}
-            <div className="mb-10 overflow-hidden rounded-2xl border-2 border-red-500/30 bg-gradient-to-r from-red-950 via-rose-950 to-[#2c0c0c] p-6 text-white shadow-xl">
+            <div className="scroll-reveal mb-10 overflow-hidden rounded-2xl border border-red-200 bg-gradient-to-r from-white via-white to-red-50 p-6 text-ink shadow-[0_14px_36px_rgba(127,29,29,0.08)]">
               <div className="flex flex-col items-start justify-between gap-6 md:flex-row md:items-center">
-                <div className="flex items-start gap-4">
-                  <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-red-600/80 text-2xl shadow-inner">
-                    🚨
+                <div className="flex min-w-0 items-start gap-4">
+                  <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-red-50 text-red-700 ring-1 ring-inset ring-red-200">
+                    <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <circle cx="12" cy="12" r="9" />
+                      <path d="M12 7v10M7 12h10" />
+                    </svg>
                   </span>
-                  <div>
+                  <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="inline-block rounded-full bg-red-500 px-2.5 py-0.5 text-[11px] font-extrabold uppercase tracking-wider text-white">
+                      <span className="inline-block rounded-full bg-red-100 px-2.5 py-0.5 text-[11px] font-extrabold uppercase tracking-wider text-red-800">
                         Priority Relief Intervention
                       </span>
-                      <span className="text-xs text-red-200">Emergency Field Response · 2025</span>
+                      <span className="text-xs text-muted">Emergency Field Response · 2025</span>
                     </div>
-                    <h3 className="mt-1 text-xl font-bold text-white sm:text-2xl">
+                    <h3 className="mt-1 text-xl font-bold text-ink sm:text-2xl">
                       Flood 2025: Emergency Medical Camps &amp; Clean Water
                     </h3>
-                    <p className="mt-1 max-w-2xl text-sm text-red-100/90">
+                    <p className="mt-1 max-w-2xl text-sm text-ink/75">
                       Frontline disaster response across flood-affected union councils in South Punjab, Khyber Pakhtunkhwa, and Sindh: providing emergency medical care, 3,468 hygiene kits, and emergency safe water supplies.
                     </p>
                   </div>
@@ -174,14 +181,14 @@ export default async function Home() {
                   <Link href="/donate?purpose=Emergency+relief" className="btn btn-donation shadow-lg">
                     Support Flood 2025 Relief
                   </Link>
-                  <Link href="/our-work/humanitarian" className="btn btn-light">
+                  <Link href="/our-work/humanitarian" className="btn btn-ghost">
                     Humanitarian Work
                   </Link>
                 </div>
               </div>
             </div>
 
-            <div className="flex flex-wrap items-end justify-between gap-6">
+            <div className="scroll-reveal flex flex-wrap items-end justify-between gap-6">
               <div className="max-w-2xl">
                 <span className="text-xs font-bold uppercase tracking-wider text-brand">Field Operations &amp; Impact</span>
                 <h2 className="mt-1">Latest Projects &amp; Field Interventions</h2>
@@ -194,7 +201,7 @@ export default async function Home() {
               </Link>
             </div>
 
-            <div className="mt-8">
+            <div className="scroll-reveal scroll-reveal-scale mt-8">
               <StoriesCarousel items={featureUpdates} />
             </div>
           </div>
@@ -203,7 +210,7 @@ export default async function Home() {
         {/* How could you help — 100% Pakistan photography */}
         <section className="py-16 md:py-24">
           <div className="container-ff grid items-center gap-12 lg:grid-cols-12 lg:gap-14">
-            <div className="space-y-4 lg:col-span-6">
+            <div className="scroll-reveal scroll-reveal-from-left space-y-4 lg:col-span-6">
               <figure>
                 <div className="overflow-hidden rounded-[24px] ring-1 ring-line">
                   <img
@@ -240,7 +247,7 @@ export default async function Home() {
               </div>
             </div>
 
-            <div className="lg:col-span-6">
+            <div className="scroll-reveal scroll-reveal-from-right lg:col-span-6">
               <h2>How could you help families in Pakistan?</h2>
               <p className="mt-4 text-[1.08rem] leading-relaxed text-ink/80">
                 From Gwadar and rural Sindh to South Punjab and Swat, millions of Pakistani families live one illness or
@@ -302,7 +309,7 @@ export default async function Home() {
         {/* Key Achievements interactive explorer */}
         <section className="impact-band-surface py-16 md:py-22">
           <div className="container-ff">
-            <div className="mx-auto mb-10 max-w-2xl text-center">
+            <div className="scroll-reveal mx-auto mb-10 max-w-2xl text-center">
               <h2
                 style={{ fontFamily: "var(--font-serif-title)" }}
                 className="text-[2rem] leading-[1.15] font-bold text-white sm:text-[2.5rem]"
@@ -314,9 +321,11 @@ export default async function Home() {
               </p>
             </div>
 
-            <ImpactExplorer />
+            <div className="scroll-reveal scroll-reveal-scale">
+              <ImpactExplorer />
+            </div>
 
-            <div className="mt-9 text-center">
+            <div className="scroll-reveal mt-9 text-center">
               <Link href="/how-we-work#accomplishments" className="btn btn-light">
                 See all 12 accomplishments <ArrowRightIcon className="h-4 w-4" />
               </Link>
@@ -348,7 +357,7 @@ export default async function Home() {
         {/* Where we work */}
         <section className="py-16 md:py-24">
           <div className="container-ff grid items-center gap-12 lg:grid-cols-12 lg:gap-14">
-            <div className="lg:col-span-5">
+            <div className="scroll-reveal scroll-reveal-from-left lg:col-span-5">
               <h2>Where we work across Pakistan</h2>
               <p className="mt-5 text-[1.08rem] leading-relaxed text-ink/80">
                 From Rawalpindi’s low-income neighbourhoods to flood-prone villages in South Punjab, displacement camps in
@@ -367,7 +376,7 @@ export default async function Home() {
               </Link>
             </div>
 
-            <figure className="lg:col-span-7">
+            <figure className="scroll-reveal scroll-reveal-from-right lg:col-span-7">
               <div className="overflow-hidden rounded-[24px] border border-line bg-white p-3 shadow-[0_24px_60px_rgba(44,117,165,0.12)]">
                 <a href={img("geomap.jpeg")} target="_blank" rel="noopener noreferrer">
                   <img
@@ -388,7 +397,7 @@ export default async function Home() {
         {/* Frequently Asked Questions Accordion */}
         <section className="border-t border-line bg-mist/50 py-16 md:py-24">
           <div className="container-ff">
-            <div className="mx-auto mb-10 max-w-2xl text-center">
+            <div className="scroll-reveal mx-auto mb-10 max-w-2xl text-center">
               <span className="eyebrow eyebrow-blue">Questions &amp; Answers</span>
               <h2 className="mt-2 text-3xl font-bold tracking-tight text-deep-2 md:text-4xl">
                 Frequently Asked Questions
@@ -398,7 +407,7 @@ export default async function Home() {
               </p>
             </div>
 
-            <div className="mx-auto max-w-3xl">
+            <div className="scroll-reveal scroll-reveal-scale mx-auto max-w-3xl">
               <FaqAccordion
                 items={[
                   {
@@ -455,14 +464,14 @@ export default async function Home() {
             aria-hidden="true"
           />
           <div className="container-ff relative flex flex-col items-start gap-8 py-16 md:flex-row md:items-center md:justify-between md:py-20">
-            <div className="max-w-xl">
+            <div className="scroll-reveal scroll-reveal-from-left max-w-xl">
               <h2 className="text-white">Give families health care, clean water and hope</h2>
               <p className="mt-4 text-[1.08rem] leading-relaxed text-white/85">
                 Give in Pakistani rupees or US dollars, direct your Zakat, sponsor a village water point, or volunteer your
                 skills with our field teams.
               </p>
             </div>
-            <div className="flex shrink-0 flex-wrap gap-3">
+            <div className="scroll-reveal scroll-reveal-from-right flex shrink-0 flex-wrap gap-3">
               <Link href="/donate" className="btn btn-donation">
                 Donate in PKR or USD
               </Link>

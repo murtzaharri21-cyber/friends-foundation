@@ -249,6 +249,15 @@ function sortByThematicOrder<T extends { slug: string }>(items: T[]): T[] {
   );
 }
 
+function sortHeroSlidesByThematicOrder(items: HeroSlide[]): HeroSlide[] {
+  const orderByHref = new Map(areaLinks.map(({ slug }, index) => [`/our-work/${slug}`, index]));
+  return [...items].sort(
+    (a, b) =>
+      (orderByHref.get(a.secondaryHref) ?? Number.MAX_SAFE_INTEGER) -
+      (orderByHref.get(b.secondaryHref) ?? Number.MAX_SAFE_INTEGER),
+  );
+}
+
 export const CMS_KEYS: CmsSectionKey[] = [...CMS_SECTION_KEYS];
 
 export function phoneToHref(phone: string): string {
@@ -280,6 +289,9 @@ export const getSiteCms = cache(async (): Promise<CmsState> => {
   }
   if (Array.isArray(merged.thematicSlides)) {
     merged.thematicSlides = sortByThematicOrder(merged.thematicSlides);
+  }
+  if (Array.isArray(merged.heroSlides)) {
+    merged.heroSlides = sortHeroSlidesByThematicOrder(merged.heroSlides);
   }
   if (Array.isArray(merged.areas)) {
     merged.areas = sortByThematicOrder(merged.areas);

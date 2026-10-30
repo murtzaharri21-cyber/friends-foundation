@@ -13,7 +13,7 @@ export default function CampaignSpotlight() {
   return (
     <section className="bg-[#eaf7f6] py-16 md:py-20" aria-labelledby="hpv-campaign-heading">
       <div className="container-ff grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
-        <div>
+        <div className="scroll-reveal scroll-reveal-from-left">
           <p className="eyebrow eyebrow-blue">Campaign spotlight · 2025 · Multan</p>
           <h2 id="hpv-campaign-heading" className="mt-3">
             Taking HPV vaccination outreach into underserved communities
@@ -29,7 +29,7 @@ export default function CampaignSpotlight() {
           </Link>
         </div>
 
-        <div className="card p-5 sm:p-7">
+        <div className="card scroll-reveal scroll-reveal-from-right p-5 sm:p-7">
           <figure aria-labelledby="hpv-chart-title">
             <figcaption id="hpv-chart-title" className="font-display text-lg font-bold text-deep-2">
               Girls vaccinated by union council
