@@ -59,6 +59,26 @@ export default function Header() {
 
       {/* Floating header card */}
       <header className="sticky top-0 z-50">
+        {/* Animated lifeline above the navigation */}
+        <div className="header-lifeline-wrap" aria-hidden="true">
+          <div className="header-lifeline-track">
+            <svg
+              viewBox="0 0 600 32"
+              preserveAspectRatio="none"
+              className="header-lifeline-wave"
+              fill="none"
+              vectorEffect="non-scaling-stroke"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path
+                className="header-lifeline-wave-path"
+                d="M0 16 H28 C38 16 42 13 50 13 S62 16 70 16 H94 L100 14 L106 20 L114 5 L122 23 L130 16 H148 C158 16 166 10 176 10 S194 16 204 16 H300 M300 16 H328 C338 16 342 13 350 13 S362 16 370 16 H394 L400 14 L406 20 L414 5 L422 23 L430 16 H448 C458 16 466 10 476 10 S494 16 504 16 H600"
+              />
+            </svg>
+          </div>
+        </div>
         <div className="py-2.5">
           <div className="container-ff">
             <div className="rounded-[24px] border border-line/70 bg-white/92 px-4 py-2.5 shadow-[0_16px_38px_rgba(7,18,42,0.08)] backdrop-blur-md sm:px-5">
@@ -182,27 +202,6 @@ export default function Header() {
               </div>
             )}
           </div>
-        </div>
-      </div>
-
-      {/* Animated red line with pulse sign in movement below the header */}
-      <div className="header-lifeline-wrap" aria-hidden="true">
-        <div className="header-lifeline-track">
-          <svg
-            viewBox="0 0 600 32"
-            preserveAspectRatio="none"
-            className="header-lifeline-wave"
-            fill="none"
-            vectorEffect="non-scaling-stroke"
-            strokeWidth="2.2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path
-              className="header-lifeline-wave-path"
-              d="M0 16 H28 C38 16 42 13 50 13 S62 16 70 16 H94 L100 14 L106 20 L114 5 L122 23 L130 16 H148 C158 16 166 10 176 10 S194 16 204 16 H300 M300 16 H328 C338 16 342 13 350 13 S362 16 370 16 H394 L400 14 L406 20 L414 5 L422 23 L430 16 H448 C458 16 466 10 476 10 S494 16 504 16 H600"
-            />
-          </svg>
         </div>
       </div>
     </header>
