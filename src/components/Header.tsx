@@ -26,7 +26,7 @@ export default function Header() {
     <>
       {/* Utility bar */}
       <div className="bg-brand-bright text-white">
-        <div className="container-ff flex min-h-10 flex-wrap items-center justify-between gap-x-6 gap-y-1 py-1.5 text-[13px]">
+        <div className="container-ff relative flex min-h-10 flex-wrap items-center justify-between gap-x-6 gap-y-1 py-1.5 text-[13px]">
           <div className="flex flex-wrap items-center gap-x-5 gap-y-1">
             <a href={phoneHref} className="inline-flex items-center gap-2 font-semibold hover:text-cream-deep">
               <PhoneIcon className="h-3.5 w-3.5" />
@@ -54,33 +54,41 @@ export default function Header() {
               </a>
             ))}
           </div>
+          <div className="header-lifeline-wrap" aria-hidden="true">
+            <svg
+              viewBox="0 0 320 100"
+              preserveAspectRatio="none"
+              className="header-lifeline-wave"
+              style={{ width: 110 }}
+              fill="none"
+              aria-hidden="true"
+            >
+              <defs>
+                <linearGradient id="header-lifeline-fade">
+                  <stop offset="0%" stopColor="black" />
+                  <stop offset="2%" stopColor="white" />
+                  <stop offset="98%" stopColor="white" />
+                  <stop offset="100%" stopColor="black" />
+                </linearGradient>
+                <mask id="header-lifeline-mask">
+                  <rect width="100%" height="100%" fill="url(#header-lifeline-fade)" />
+                </mask>
+              </defs>
+              <path
+                d="M0 50 H78 L89 50 L101 30 Q106 21 111 32 L128 75 Q132 86 137 73 L163 4 Q167 -6 172 5 L196 77 Q200 88 207 76 L243 39 Q249 31 255 42 L270 50 H320"
+                stroke="#ff0018"
+                strokeWidth="8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                mask="url(#header-lifeline-mask)"
+              />
+            </svg>
+          </div>
         </div>
       </div>
 
       {/* Floating header card */}
       <header className="sticky top-0 z-50">
-        {/* Animated ECG lifeline above the navigation */}
-        <div className="header-lifeline-wrap" aria-hidden="true">
-          <svg
-            viewBox="0 0 720 32"
-            preserveAspectRatio="none"
-            className="header-lifeline-wave"
-            fill="none"
-            aria-hidden="true"
-          >
-            <g className="header-lifeline-trace">
-              <g stroke="#ff2525" strokeWidth="4.5" opacity=".58">
-                <path d="M0 16 H34 C39 16 40 13 43 11 C46 9 48 15 51 16 H56 L61 6 C63 1 65 1 66 6 L71 27 C72 31 74 31 76 26 L81 14 C83 10 85 11 87 14 C89 17 91 17 95 16 H120 M120 16 H154 C159 16 160 13 163 11 C166 9 168 15 171 16 H176 L181 6 C183 1 185 1 186 6 L191 27 C192 31 194 31 196 26 L201 14 C203 10 205 11 207 14 C209 17 211 17 215 16 H240 M240 16 H274 C279 16 280 13 283 11 C286 9 288 15 291 16 H296 L301 6 C303 1 305 1 306 6 L311 27 C312 31 314 31 316 26 L321 14 C323 10 325 11 327 14 C329 17 331 17 335 16 H360 M360 16 H394 C399 16 400 13 403 11 C406 9 408 15 411 16 H416 L421 6 C423 1 425 1 426 6 L431 27 C432 31 434 31 436 26 L441 14 C443 10 445 11 447 14 C449 17 451 17 455 16 H480 M480 16 H514 C519 16 520 13 523 11 C526 9 528 15 531 16 H536 L541 6 C543 1 545 1 546 6 L551 27 C552 31 554 31 556 26 L561 14 C563 10 565 11 567 14 C569 17 571 17 575 16 H600 M600 16 H634 C639 16 640 13 643 11 C646 9 648 15 651 16 H656 L661 6 C663 1 665 1 666 6 L671 27 C672 31 674 31 676 26 L681 14 C683 10 685 11 687 14 C689 17 691 17 695 16 H720" />
-              </g>
-              <g stroke="#ff3535" strokeWidth="2.4">
-                <path d="M0 16 H34 C39 16 40 13 43 11 C46 9 48 15 51 16 H56 L61 6 C63 1 65 1 66 6 L71 27 C72 31 74 31 76 26 L81 14 C83 10 85 11 87 14 C89 17 91 17 95 16 H120 M120 16 H154 C159 16 160 13 163 11 C166 9 168 15 171 16 H176 L181 6 C183 1 185 1 186 6 L191 27 C192 31 194 31 196 26 L201 14 C203 10 205 11 207 14 C209 17 211 17 215 16 H240 M240 16 H274 C279 16 280 13 283 11 C286 9 288 15 291 16 H296 L301 6 C303 1 305 1 306 6 L311 27 C312 31 314 31 316 26 L321 14 C323 10 325 11 327 14 C329 17 331 17 335 16 H360 M360 16 H394 C399 16 400 13 403 11 C406 9 408 15 411 16 H416 L421 6 C423 1 425 1 426 6 L431 27 C432 31 434 31 436 26 L441 14 C443 10 445 11 447 14 C449 17 451 17 455 16 H480 M480 16 H514 C519 16 520 13 523 11 C526 9 528 15 531 16 H536 L541 6 C543 1 545 1 546 6 L551 27 C552 31 554 31 556 26 L561 14 C563 10 565 11 567 14 C569 17 571 17 575 16 H600 M600 16 H634 C639 16 640 13 643 11 C646 9 648 15 651 16 H656 L661 6 C663 1 665 1 666 6 L671 27 C672 31 674 31 676 26 L681 14 C683 10 685 11 687 14 C689 17 691 17 695 16 H720" />
-              </g>
-              <g stroke="#fff1f1" strokeWidth="1">
-                <path d="M0 16 H34 C39 16 40 13 43 11 C46 9 48 15 51 16 H56 L61 6 C63 1 65 1 66 6 L71 27 C72 31 74 31 76 26 L81 14 C83 10 85 11 87 14 C89 17 91 17 95 16 H120 M120 16 H154 C159 16 160 13 163 11 C166 9 168 15 171 16 H176 L181 6 C183 1 185 1 186 6 L191 27 C192 31 194 31 196 26 L201 14 C203 10 205 11 207 14 C209 17 211 17 215 16 H240 M240 16 H274 C279 16 280 13 283 11 C286 9 288 15 291 16 H296 L301 6 C303 1 305 1 306 6 L311 27 C312 31 314 31 316 26 L321 14 C323 10 325 11 327 14 C329 17 331 17 335 16 H360 M360 16 H394 C399 16 400 13 403 11 C406 9 408 15 411 16 H416 L421 6 C423 1 425 1 426 6 L431 27 C432 31 434 31 436 26 L441 14 C443 10 445 11 447 14 C449 17 451 17 455 16 H480 M480 16 H514 C519 16 520 13 523 11 C526 9 528 15 531 16 H536 L541 6 C543 1 545 1 546 6 L551 27 C552 31 554 31 556 26 L561 14 C563 10 565 11 567 14 C569 17 571 17 575 16 H600 M600 16 H634 C639 16 640 13 643 11 C646 9 648 15 651 16 H656 L661 6 C663 1 665 1 666 6 L671 27 C672 31 674 31 676 26 L681 14 C683 10 685 11 687 14 C689 17 691 17 695 16 H720" />
-              </g>
-            </g>
-          </svg>
-        </div>
         <div className="py-2.5">
           <div className="container-ff">
             <div className="rounded-[24px] border border-line/70 bg-white/92 px-4 py-2.5 shadow-[0_16px_38px_rgba(7,18,42,0.08)] backdrop-blur-md sm:px-5">
