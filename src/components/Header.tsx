@@ -26,7 +26,7 @@ export default function Header() {
     <>
       {/* Utility bar */}
       <div className="bg-brand-bright text-white">
-        <div className="container-ff relative flex min-h-10 flex-wrap items-center justify-between gap-x-6 gap-y-1 py-1.5 text-[13px]">
+        <div className="container-ff flex min-h-10 flex-wrap items-center justify-between gap-x-6 gap-y-1 py-1.5 text-[13px]">
           <div className="flex flex-wrap items-center gap-x-5 gap-y-1">
             <a href={phoneHref} className="inline-flex items-center gap-2 font-semibold hover:text-cream-deep">
               <PhoneIcon className="h-3.5 w-3.5" />
@@ -54,35 +54,7 @@ export default function Header() {
               </a>
             ))}
           </div>
-          {/* ECG pulse spike — travels left→right across red baseline */}
-          <div className="header-lifeline-wrap" aria-hidden="true">
-            <svg
-              viewBox="0 0 90 28"
-              className="header-lifeline-wave"
-              fill="none"
-              aria-hidden="true"
-            >
-              {/* baseline segments on either side of the spike */}
-              <line x1="0"  y1="14" x2="28" y2="14" stroke="#dc141e" strokeWidth="2" />
-              <line x1="62" y1="14" x2="90" y2="14" stroke="#dc141e" strokeWidth="2" />
-              {/* ECG spike: flat → sharp up → sharp down → flat */}
-              <polyline
-                points="28,14 34,14 38,2 42,26 46,14 52,14"
-                stroke="#ff1e2e"
-                strokeWidth="2.8"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              {/* bright white highlight on the spike */}
-              <polyline
-                points="36,9 38,2 42,26 44,18"
-                stroke="rgba(255,255,255,0.7)"
-                strokeWidth="1.2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </div>
+
         </div>
       </div>
 
