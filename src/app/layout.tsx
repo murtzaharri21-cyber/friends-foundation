@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { SiteConfigProvider } from "@/components/SiteConfigContext";
+import ScrollRevealObserver from "@/components/ScrollRevealObserver";
 import { getSiteCms } from "@/lib/cms";
 import "./globals.css";
 
@@ -36,6 +37,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
       </head>
       <body>
         <SiteConfigProvider value={cms.siteInfo}>
+          <ScrollRevealObserver />
           {children}
         </SiteConfigProvider>
       </body>

@@ -54,33 +54,32 @@ export default function Header() {
               </a>
             ))}
           </div>
+          {/* ECG pulse spike — travels left→right across red baseline */}
           <div className="header-lifeline-wrap" aria-hidden="true">
             <svg
-              viewBox="0 0 320 100"
-              preserveAspectRatio="none"
+              viewBox="0 0 90 28"
               className="header-lifeline-wave"
-              style={{ width: 110 }}
               fill="none"
               aria-hidden="true"
             >
-              <defs>
-                <linearGradient id="header-lifeline-fade">
-                  <stop offset="0%" stopColor="black" />
-                  <stop offset="2%" stopColor="white" />
-                  <stop offset="98%" stopColor="white" />
-                  <stop offset="100%" stopColor="black" />
-                </linearGradient>
-                <mask id="header-lifeline-mask">
-                  <rect width="100%" height="100%" fill="url(#header-lifeline-fade)" />
-                </mask>
-              </defs>
-              <path
-                d="M0 50 H78 L89 50 L101 30 Q106 21 111 32 L128 75 Q132 86 137 73 L163 4 Q167 -6 172 5 L196 77 Q200 88 207 76 L243 39 Q249 31 255 42 L270 50 H320"
-                stroke="#ff0018"
-                strokeWidth="8"
+              {/* baseline segments on either side of the spike */}
+              <line x1="0"  y1="14" x2="28" y2="14" stroke="#dc141e" strokeWidth="2" />
+              <line x1="62" y1="14" x2="90" y2="14" stroke="#dc141e" strokeWidth="2" />
+              {/* ECG spike: flat → sharp up → sharp down → flat */}
+              <polyline
+                points="28,14 34,14 38,2 42,26 46,14 52,14"
+                stroke="#ff1e2e"
+                strokeWidth="2.8"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                mask="url(#header-lifeline-mask)"
+              />
+              {/* bright white highlight on the spike */}
+              <polyline
+                points="36,9 38,2 42,26 44,18"
+                stroke="rgba(255,255,255,0.7)"
+                strokeWidth="1.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
               />
             </svg>
           </div>

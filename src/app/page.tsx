@@ -11,7 +11,6 @@ import AnimatedNumber from "@/components/AnimatedNumber";
 import PartnerMarquee from "@/components/PartnerMarquee";
 import AllianceDonorsBand from "@/components/AllianceDonorsBand";
 import FaqAccordion from "@/components/FaqAccordion";
-import ScrollRevealObserver from "@/components/ScrollRevealObserver";
 import { ArrowRightIcon, CheckIcon } from "@/components/Icons";
 import { devPartners, govPartners, img, regions } from "@/lib/content";
 import { getSiteCms } from "@/lib/cms";
@@ -26,7 +25,6 @@ export default async function Home() {
     <>
       <Header />
       <main>
-        <ScrollRevealObserver />
         {/* Full-bleed Alkhidmat-style Auto-Crossfading Hero Banner + Quick Appeal Bar */}
         <HeroSlider slides={heroSlides} />
 

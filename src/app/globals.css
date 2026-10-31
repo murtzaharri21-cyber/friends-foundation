@@ -35,6 +35,14 @@
   --shadow-btn: 0 16px 36px rgba(54, 143, 201, 0.22);
 }
 
+:root {
+  --motion-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --motion-ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --motion-duration-fast: 180ms;
+  --motion-duration-ui: 280ms;
+  --motion-duration-reveal: 680ms;
+}
+
 @media (min-width: 52rem) and (hover: hover) and (pointer: fine) {
   html {
     min-width: 80rem;
@@ -81,8 +89,8 @@
     scroll-margin-top: 120px;
   }
   :where(a, button, summary) {
-    transition-duration: 180ms;
-    transition-timing-function: ease;
+    transition-duration: var(--motion-duration-fast);
+    transition-timing-function: var(--motion-ease-standard);
   }
   ::selection {
     background: var(--color-brand-bright);
@@ -116,8 +124,12 @@
     font-size: 0.98rem;
     line-height: 1.2;
     border: 1px solid transparent;
-    transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.22s ease,
-      color 0.22s ease, border-color 0.22s ease;
+    transition:
+      transform var(--motion-duration-ui) var(--motion-ease-out),
+      box-shadow var(--motion-duration-ui) var(--motion-ease-out),
+      background-color var(--motion-duration-ui) var(--motion-ease-standard),
+      color var(--motion-duration-ui) var(--motion-ease-standard),
+      border-color var(--motion-duration-ui) var(--motion-ease-standard);
   }
   .btn:hover {
     transform: translateY(-2px);
@@ -126,7 +138,7 @@
     transform: translateY(1px) scale(0.99);
   }
   .btn svg {
-    transition: transform 0.22s ease;
+    transition: transform var(--motion-duration-ui) var(--motion-ease-out);
   }
   .btn:hover svg {
     transform: translateX(3px);
@@ -181,7 +193,7 @@
     border: 1px solid rgb(255 255 255 / 38%);
     border-radius: 999px;
     background: rgb(255 255 255 / 16%);
-    transition: transform 0.25s ease;
+    transition: transform var(--motion-duration-ui) var(--motion-ease-out);
   }
   .btn:hover .donate-heart {
     transform: scale(1.1);
@@ -239,7 +251,10 @@
     border: 1px solid var(--color-line);
     border-radius: 18px;
     box-shadow: 0 10px 30px rgba(44, 117, 165, 0.07);
-    transition: border-color 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1), transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+    transition:
+      border-color var(--motion-duration-ui) var(--motion-ease-standard),
+      box-shadow var(--motion-duration-ui) var(--motion-ease-out),
+      transform var(--motion-duration-ui) var(--motion-ease-out);
   }
   .card:hover {
     border-color: var(--color-brand-soft);
@@ -247,14 +262,17 @@
     transform: translateY(-4px);
   }
   .card-hover {
-    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.28s ease;
+    transition:
+      transform var(--motion-duration-ui) var(--motion-ease-out),
+      box-shadow var(--motion-duration-ui) var(--motion-ease-out),
+      border-color var(--motion-duration-ui) var(--motion-ease-standard);
   }
   .card-hover:hover {
     transform: translateY(-5px);
     box-shadow: var(--shadow-soft);
   }
   .card img {
-    transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: transform 600ms var(--motion-ease-out);
   }
   .card:hover img {
     transform: scale(1.035);
@@ -263,7 +281,9 @@
     display: none;
   }
   .policy-accordion {
-    transition: all 0.25s ease;
+    transition:
+      border-color var(--motion-duration-ui) var(--motion-ease-standard),
+      box-shadow var(--motion-duration-ui) var(--motion-ease-out);
   }
   .policy-accordion:hover {
     border-color: var(--color-brand);
@@ -412,7 +432,11 @@
     border-color: #d9e5eb;
     background: #fff;
     color: #38515f;
-    transition: transform .18s ease, box-shadow .18s ease, background .18s ease, border-color .18s ease;
+    transition:
+      transform var(--motion-duration-fast) var(--motion-ease-out),
+      box-shadow var(--motion-duration-fast) var(--motion-ease-out),
+      background-color var(--motion-duration-fast) var(--motion-ease-standard),
+      border-color var(--motion-duration-fast) var(--motion-ease-standard);
   }
   .donate-choice:hover {
     border-color: #2c75a5;
@@ -471,7 +495,7 @@
   .donate-photo { overflow: hidden; border-radius: 20px; }
   .donate-photo img {
     border-radius: 20px;
-    transition: transform .5s ease;
+    transition: transform 600ms var(--motion-ease-out);
   }
   .donate-photo:hover img { transform: scale(1.025); }
   .donate-impact { padding: 1.35rem 1.4rem; border: 1px solid #e4ebef; border-radius: 20px; background: #fff; }
@@ -550,7 +574,11 @@
     background: rgba(255, 255, 255, 0.055);
     border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 18px;
-    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease, background-color 0.25s ease, box-shadow 0.25s ease;
+    transition:
+      transform var(--motion-duration-ui) var(--motion-ease-out),
+      border-color var(--motion-duration-ui) var(--motion-ease-standard),
+      background-color var(--motion-duration-ui) var(--motion-ease-standard),
+      box-shadow var(--motion-duration-ui) var(--motion-ease-out);
   }
   .stat-dark-card:hover {
     background: rgba(255, 255, 255, 0.095);
@@ -563,35 +591,49 @@
 
 }
 
-/* Animated ECG lifeline on the utility bar edge */
+/* Animated ECG lifeline — red baseline + travelling spike */
 .header-lifeline-wrap {
   position: absolute;
   z-index: 1;
   right: 0;
-  bottom: -15px;
+  bottom: -14px;
   left: 0;
-  height: 30px;
+  height: 28px;
   overflow: hidden;
+  pointer-events: none;
   background: transparent;
 }
+/* Red baseline that spans full width */
+.header-lifeline-wrap::before {
+  content: "";
+  position: absolute;
+  top: 14px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: rgba(220, 20, 30, 0.75);
+  border-radius: 1px;
+}
+/* The ECG spike SVG — travels left to right, always moving */
 .header-lifeline-wave {
   position: absolute;
   top: 0;
-  left: 0;
+  left: -90px;           /* start just off-screen left */
   display: block;
-  width: 110px;
-  height: 30px;
-  max-width: none;
-  animation: lifeline-pulse-travel 8s linear infinite;
+  width: 90px;
+  height: 28px;
+  animation: lifeline-travel 3s linear infinite;
   will-change: transform;
   pointer-events: none;
+  filter: drop-shadow(0 0 4px rgba(255, 30, 30, 0.9))
+          drop-shadow(0 0 2px rgba(255, 255, 255, 0.6));
 }
-@keyframes lifeline-pulse-travel {
+@keyframes lifeline-travel {
   from {
-    transform: translateX(-110px);
+    transform: translateX(0);
   }
   to {
-    transform: translateX(calc(100vw + 110px));
+    transform: translateX(calc(100vw + 180px));
   }
 }
 /* Alkhidmat-style hero Ken Burns zoom + slide progress bar + headline reveal */
@@ -614,7 +656,7 @@
   }
 }
 .animate-fade-in {
-  animation: ff-fade-in 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: ff-fade-in 420ms var(--motion-ease-out) both;
 }
 @keyframes ff-slide-up {
   from {
@@ -635,41 +677,40 @@
   }
 }
 .hero-kenburns {
-  animation: ff-kenburns 5.4s ease-out forwards;
+  animation: ff-kenburns 4.2s var(--motion-ease-out) forwards;
 }
 .hero-copy-enter {
-  animation: ff-slide-up 620ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: ff-slide-up 560ms var(--motion-ease-out) both;
 }
 .hero-progress-bar {
   transform-origin: left center;
   animation: ff-progress 4.2s linear forwards;
 }
-@media (prefers-reduced-motion: reduce) {
-  .hero-kenburns,
-  .hero-copy-enter,
-  .hero-progress-bar {
-    animation: none;
-  }
-}
-
 .scroll-reveal-from-left {
-  --scroll-reveal-x: -56px;
+  --scroll-reveal-x: -38px;
 }
 
 .scroll-reveal-from-right {
-  --scroll-reveal-x: 56px;
+  --scroll-reveal-x: 38px;
+}
+
+.scroll-reveal-from-bottom {
+  --scroll-reveal-x: 0px;
+  --scroll-reveal-y: 44px;
+  --scroll-reveal-scale: 0.96;
 }
 
 .scroll-reveal-scale {
-  --scroll-reveal-scale: 0.96;
+  --scroll-reveal-scale: 0.99;
 }
 
 .scroll-reveal[data-scroll-ready="true"] {
   opacity: 0;
-  transform: translate3d(var(--scroll-reveal-x, 0), 48px, 0) scale(var(--scroll-reveal-scale, 1));
+  transform: translate3d(var(--scroll-reveal-x, -24px), var(--scroll-reveal-y, 16px), 0)
+    scale(var(--scroll-reveal-scale, 1));
   transition:
-    opacity 700ms cubic-bezier(0.2, 0.7, 0.2, 1),
-    transform 700ms cubic-bezier(0.2, 0.7, 0.2, 1);
+    opacity var(--motion-duration-reveal) var(--motion-ease-out) var(--scroll-reveal-delay, 0ms),
+    transform var(--motion-duration-reveal) var(--motion-ease-out) var(--scroll-reveal-delay, 0ms);
 }
 
 .scroll-reveal[data-scroll-ready="true"][data-scroll-revealed="true"] {
@@ -713,7 +754,7 @@
 .alliance-donors-track {
   display: flex;
   width: max-content;
-  animation: alliance-donors-scroll 28s linear infinite;
+  animation: alliance-donors-scroll 36s linear infinite;
   will-change: transform;
 }
 .alliance-donors-track > .alliance-donors-logos {
@@ -775,7 +816,7 @@
 .partner-marquee-track {
   display: flex;
   width: max-content;
-  animation: partner-marquee-scroll 45s linear infinite;
+  animation: partner-marquee-scroll 55s linear infinite;
   will-change: transform;
 }
 .partner-marquee-copy {
@@ -804,7 +845,9 @@
   background: #fff;
   padding: 0.75rem;
   box-shadow: 0 8px 18px rgba(20, 60, 87, 0.06);
-  transition: transform 200ms ease, box-shadow 200ms ease;
+  transition:
+    transform var(--motion-duration-ui) var(--motion-ease-out),
+    box-shadow var(--motion-duration-ui) var(--motion-ease-out);
 }
 .partner-logo-card:hover {
   transform: translateY(-3px);
@@ -854,10 +897,15 @@
 .partner-flow-track {
   display: flex;
   width: max-content;
-  animation: partner-flow-scroll 38s linear infinite;
+  animation: partner-flow-scroll 48s linear infinite;
   will-change: transform;
 }
-.partner-flow-container:hover .partner-flow-track {
+.partner-flow-container:hover .partner-flow-track,
+.partner-flow-container:focus-within .partner-flow-track,
+.alliance-donors-marquee:hover .alliance-donors-track,
+.alliance-donors-marquee:focus-within .alliance-donors-track,
+.partner-marquee-wrap:hover .partner-marquee-track,
+.partner-marquee-wrap:focus-within .partner-marquee-track {
   animation-play-state: paused;
 }
 @keyframes partner-flow-scroll {
@@ -869,24 +917,82 @@
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .partner-flow-track {
-    animation-duration: 76s;
+  html {
+    scroll-behavior: auto;
   }
-  .alliance-donors-track {
-    animation-duration: 42s;
-  }
-}
 
-@media (prefers-reduced-motion: reduce) {
-  .scroll-reveal[data-scroll-ready="true"] {
-    opacity: 1;
-    transform: none;
-    transition: none;
+  .header-lifeline-wave,
+  .header-lifeline-wave path,
+  .hero-kenburns,
+  .hero-copy-enter,
+  .hero-progress-bar,
+  .animate-fade-in,
+  .alliance-donors-track,
+  .partner-marquee-track,
+  .partner-flow-track {
+    animation: none !important;
+  }
+
+  .hero-progress-bar {
+    transform: scaleX(1);
+  }
+
+  .header-lifeline-wave path {
+    stroke-dashoffset: 0;
+  }
+
+  .hero-slide-image {
+    transform: none !important;
+    transition: none !important;
   }
 
   :where(a, button, summary),
   .card,
   .card-hover {
-    transition-duration: 0.01ms !important;
+    transition-duration: 180ms !important;
+  }
+
+  :where(a, button, summary):hover,
+  :where(a, button, summary):active,
+  .card:hover,
+  .card-hover:hover,
+  .partner-logo-card:hover {
+    transform: none;
+  }
+}
+
+@media (max-width: 640px) and (prefers-reduced-motion: reduce) {
+  .scroll-reveal[data-scroll-ready="true"] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+@media (max-width: 640px) {
+  :root {
+    --motion-duration-reveal: 560ms;
+  }
+
+  .scroll-reveal-from-left {
+    --scroll-reveal-x: -20px;
+  }
+
+  .scroll-reveal-from-right {
+    --scroll-reveal-x: 20px;
+  }
+
+  .scroll-reveal-from-bottom {
+    --scroll-reveal-y: 32px;
+    --scroll-reveal-scale: 0.98;
+  }
+
+  .scroll-reveal[data-scroll-ready="true"] {
+    transform: translate3d(var(--scroll-reveal-x, -14px), var(--scroll-reveal-y, 12px), 0)
+      scale(var(--scroll-reveal-scale, 1));
+  }
+
+  .scroll-reveal[data-scroll-ready="true"][data-scroll-revealed="true"] {
+    transform: translate3d(0, 0, 0) scale(1);
   }
 }

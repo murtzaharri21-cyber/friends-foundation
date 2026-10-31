@@ -4,74 +4,111 @@ import { useEffect } from "react";
 
 export default function ScrollRevealObserver() {
   useEffect(() => {
-    const elements = [...document.querySelectorAll<HTMLElement>(".scroll-reveal")];
     const motionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const desktopViewport = window.matchMedia("(min-width: 641px)");
+    const observedElements = new WeakSet<HTMLElement>();
+    let revealElements = new Set<HTMLElement>();
+    let revealFrame = 0;
 
-    if (motionPreference.matches) {
-      elements.forEach((element) => {
+    const revealAll = () => {
+      revealElements.forEach((element) => {
         element.dataset.scrollRevealed = "true";
-        element.style.opacity = "1";
-        element.style.transform = "none";
       });
-      return;
-    }
+      if (revealFrame) window.cancelAnimationFrame(revealFrame);
+      revealFrame = window.requestAnimationFrame(() => {
+        revealFrame = 0;
+        revealElements.forEach((element) => {
+          if (element.isConnected) element.dataset.scrollRevealed = "true";
+        });
+      });
+    };
 
-    elements.forEach((element) => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting || !(entry.target instanceof HTMLElement)) return;
+          entry.target.dataset.scrollRevealed = "true";
+          observer.unobserve(entry.target);
+        });
+      },
+      { rootMargin: "0px 0px -8% 0px", threshold: 0 },
+    );
+
+    const prepareElement = (element: HTMLElement, directionIndex: number) => {
+      if (observedElements.has(element)) return;
+      observedElements.add(element);
+      element.classList.add("scroll-reveal");
+      const containsVisual = element.matches("img, picture, figure") || element.querySelector("img, picture, figure") !== null;
+      if (directionIndex % 3 === 2 || (containsVisual && directionIndex % 2 === 0)) {
+        element.classList.remove("scroll-reveal-from-left", "scroll-reveal-from-right");
+        element.classList.add("scroll-reveal-from-bottom");
+      } else if (
+        !element.classList.contains("scroll-reveal-from-left") &&
+        !element.classList.contains("scroll-reveal-from-right") &&
+        !element.classList.contains("scroll-reveal-from-bottom")
+      ) {
+        element.classList.add(directionIndex % 2 === 0 ? "scroll-reveal-from-left" : "scroll-reveal-from-right");
+      }
+      element.style.setProperty("--scroll-reveal-delay", `${(directionIndex % 3) * 65}ms`);
+      revealElements.add(element);
+      if (element.dataset.scrollRevealed === "true") return;
       element.dataset.scrollReady = "true";
-      element.style.animation = "none";
-      element.style.transition = "none";
+      if (motionPreference.matches && !desktopViewport.matches) {
+        revealAll();
+      } else {
+        observer.observe(element);
+      }
+    };
+
+    const scanPage = () => {
+      document.querySelectorAll<HTMLElement>("main").forEach((main) => {
+        let directionIndex = 0;
+        [...main.children].forEach((child) => {
+          if (!(child instanceof HTMLElement)) return;
+          if (child.tagName === "SCRIPT" || child.tagName === "STYLE") return;
+
+          const explicitReveals = [...child.querySelectorAll<HTMLElement>(".scroll-reveal")];
+          if (child.matches(".scroll-reveal")) explicitReveals.unshift(child);
+          if (explicitReveals.length > 0) {
+            explicitReveals.forEach((element) => prepareElement(element, directionIndex++));
+          } else {
+            prepareElement(child, directionIndex++);
+          }
+        });
+      });
+    };
+
+    const updateRevealBehavior = () => {
+      scanPage();
+      if (motionPreference.matches && !desktopViewport.matches) {
+        observer.disconnect();
+        revealAll();
+      } else {
+        revealElements.forEach((element) => {
+          if (element.isConnected && element.dataset.scrollRevealed !== "true") {
+            observer.observe(element);
+          }
+        });
+      }
+    };
+
+    const mutations = new MutationObserver(() => {
+      scanPage();
+      if (motionPreference.matches && !desktopViewport.matches) revealAll();
     });
 
-    let frame = 0;
-    const updateScrollMotion = () => {
-      frame = 0;
-      const viewportHeight = window.innerHeight;
-      const start = viewportHeight * 0.92;
-      const end = viewportHeight * 0.38;
+    mutations.observe(document.body, { childList: true, subtree: true });
+    updateRevealBehavior();
 
-      elements.forEach((element) => {
-        const distance = start - element.getBoundingClientRect().top;
-        const progress = Math.max(0, Math.min(1, distance / (start - end)));
-        const horizontalOffset = element.classList.contains("scroll-reveal-from-left")
-          ? -56
-          : element.classList.contains("scroll-reveal-from-right")
-            ? 56
-            : 0;
-        const scale = element.classList.contains("scroll-reveal-scale") ? 0.96 : 1;
-
-        element.style.opacity = String(progress);
-        element.style.transform = `translate3d(${horizontalOffset * (1 - progress)}px, ${48 * (1 - progress)}px, 0) scale(${1 - (1 - scale) * (1 - progress)})`;
-        element.dataset.scrollRevealed = progress === 1 ? "true" : "false";
-      });
-    };
-
-    const scheduleScrollMotion = () => {
-      if (frame) return;
-      frame = window.requestAnimationFrame(updateScrollMotion);
-    };
-
-    updateScrollMotion();
-    window.addEventListener("scroll", scheduleScrollMotion, { passive: true });
-    window.addEventListener("resize", scheduleScrollMotion);
-
-    const handleMotionPreferenceChange = (event: MediaQueryListEvent) => {
-      if (!event.matches) return;
-      window.removeEventListener("scroll", scheduleScrollMotion);
-      window.removeEventListener("resize", scheduleScrollMotion);
-      if (frame) window.cancelAnimationFrame(frame);
-      elements.forEach((element) => {
-        element.style.opacity = "1";
-        element.style.transform = "none";
-        element.dataset.scrollRevealed = "true";
-      });
-    };
-    motionPreference.addEventListener("change", handleMotionPreferenceChange);
+    motionPreference.addEventListener("change", updateRevealBehavior);
+    desktopViewport.addEventListener("change", updateRevealBehavior);
 
     return () => {
-      window.removeEventListener("scroll", scheduleScrollMotion);
-      window.removeEventListener("resize", scheduleScrollMotion);
-      motionPreference.removeEventListener("change", handleMotionPreferenceChange);
-      if (frame) window.cancelAnimationFrame(frame);
+      mutations.disconnect();
+      observer.disconnect();
+      motionPreference.removeEventListener("change", updateRevealBehavior);
+      desktopViewport.removeEventListener("change", updateRevealBehavior);
+      if (revealFrame) window.cancelAnimationFrame(revealFrame);
     };
   }, []);
 

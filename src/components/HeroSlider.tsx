@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 import type { HeroSlide } from "@/lib/content";
 import { ArrowRightIcon, ChevronLeftIcon, ChevronRightIcon } from "./Icons";
 
@@ -37,6 +37,15 @@ export default function HeroSlider({ slides }: { slides: HeroSlide[] }) {
   const [index, setIndex] = useState(0);
   const [prevIndex, setPrevIndex] = useState<number | null>(null);
   const [zoomed, setZoomed] = useState(false);
+  const reduceMotion = useSyncExternalStore(
+    (onStoreChange) => {
+      const preference = window.matchMedia("(prefers-reduced-motion: reduce)");
+      preference.addEventListener("change", onStoreChange);
+      return () => preference.removeEventListener("change", onStoreChange);
+    },
+    () => window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+    () => false,
+  );
 
   // Quick Appeal Donation Bar state
   const [currency, setCurrency] = useState<QuickCurrency>("PKR");
@@ -64,12 +73,12 @@ export default function HeroSlider({ slides }: { slides: HeroSlide[] }) {
 
   // Automatic Alkhidmat-style continuous crossfade every 4.2s
   useEffect(() => {
-    if (slides.length <= 1) return;
+    if (slides.length <= 1 || reduceMotion) return;
     const id = window.setInterval(() => {
       goTo(index + 1);
     }, 4200);
     return () => window.clearInterval(id);
-  }, [slides.length, index, goTo]);
+  }, [slides.length, index, goTo, reduceMotion]);
 
   const effectiveAmount = custom ? Number(custom) : amount;
 
@@ -91,7 +100,7 @@ export default function HeroSlider({ slides }: { slides: HeroSlide[] }) {
   }
 
   return (
-    <div className="relative xl:-mt-[86px]">
+    <div className="relative z-10 xl:-mt-[86px]">
       <section
         aria-label="Featured humanitarian appeals across Pakistan"
         className="relative flex h-[580px] w-full items-center overflow-hidden bg-[#08223d] pt-28 pb-24 sm:h-[630px] lg:h-[670px]"
@@ -110,7 +119,9 @@ export default function HeroSlider({ slides }: { slides: HeroSlide[] }) {
               style={{
                 zIndex: isCurrent ? 3 : isPrev ? 2 : 1,
                 opacity: isCurrent || isPrev ? 1 : 0,
-                transition: isCurrent ? "opacity 1000ms ease-in-out" : "none",
+                transition: isCurrent
+                  ? "opacity 1000ms cubic-bezier(0.22, 1, 0.36, 1)"
+                  : "none",
               }}
               className="pointer-events-none absolute inset-0"
             >
@@ -125,10 +136,13 @@ export default function HeroSlider({ slides }: { slides: HeroSlide[] }) {
                   loading={i === 0 ? undefined : "lazy"}
                   unoptimized={/^https?:\/\//i.test(s.image)}
                   style={{
-                    transform: shouldScale ? "scale(1.06)" : "scale(1)",
-                    transition: isCurrent || isPrev ? "transform 5400ms ease-out" : "none",
+                    transform: shouldScale ? "scale(1.045)" : "scale(1)",
+                    transition:
+                      isCurrent || isPrev
+                        ? "transform 4200ms cubic-bezier(0.22, 1, 0.36, 1)"
+                        : "none",
                   }}
-                  className={`object-cover will-change-transform ${s.focalClass}`}
+                  className={`hero-slide-image object-cover will-change-transform ${s.focalClass}`}
                 />
               )}
 

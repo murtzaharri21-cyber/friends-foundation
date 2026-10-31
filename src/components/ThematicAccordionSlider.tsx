@@ -82,7 +82,7 @@ export default function ThematicAccordionSlider({ slides }: { slides: ThematicSl
               style={{
                 flex: isOpen ? 3.4 : 1,
                 backgroundColor: slide.color,
-                transition: "flex 620ms cubic-bezier(0.25, 1, 0.5, 1)",
+                transition: "flex 560ms cubic-bezier(0.22, 1, 0.36, 1)",
               }}
               className="group relative flex h-full min-w-[68px] cursor-pointer select-none overflow-hidden focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-white"
             >
@@ -94,7 +94,7 @@ export default function ThematicAccordionSlider({ slides }: { slides: ThematicSl
                 sizes="(min-width: 768px) 45vw, 100vw"
                 quality={90}
                 loading="lazy"
-                className={`pointer-events-none absolute inset-0 h-full w-full object-cover object-center transition-all duration-700 ${
+                className={`pointer-events-none absolute inset-0 h-full w-full object-cover object-center transition-[transform,opacity] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
                   isOpen ? "scale-100 opacity-100" : "scale-105 opacity-0"
                 }`}
               />
@@ -135,7 +135,7 @@ export default function ThematicAccordionSlider({ slides }: { slides: ThematicSl
 
               {/* Expanded state: white icon circle + large title + subtitle + direct programme link */}
               <div
-                className={`pointer-events-none absolute inset-x-0 bottom-0 z-20 flex flex-col items-start p-7 lg:p-8 transition-all duration-500 ${
+                className={`pointer-events-none absolute inset-x-0 bottom-0 z-20 flex flex-col items-start p-7 lg:p-8 transition-[transform,opacity] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
                   isOpen ? "translate-y-0 opacity-100 delay-150" : "translate-y-5 opacity-0"
                 }`}
               >
