@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { mainNav } from "@/lib/nav";
 import { ChevronDownIcon, CloseIcon, MailIcon, MenuIcon, PhoneIcon, SocialIcon } from "./Icons";
 import { useSiteConfig } from "./SiteConfigContext";
@@ -13,6 +13,30 @@ export default function Header() {
   const siteInfo = useSiteConfig();
   const [open, setOpen] = useState(false);
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [pulseViewBoxWidth, setPulseViewBoxWidth] = useState(1200);
+  const pulsePeriod = 600;
+  const lifelineRef = useRef<HTMLDivElement>(null);
+  const reduceMotion = useSyncExternalStore(
+    (onStoreChange) => {
+      const preference = window.matchMedia("(prefers-reduced-motion: reduce)");
+      preference.addEventListener("change", onStoreChange);
+      return () => preference.removeEventListener("change", onStoreChange);
+    },
+    () => window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+    () => false,
+  );
+
+  useEffect(() => {
+    const lifeline = lifelineRef.current;
+    if (!lifeline) return;
+
+    const observer = new ResizeObserver(([entry]) => {
+      const { width, height } = entry.contentRect;
+      if (height > 0) setPulseViewBoxWidth((width / height) * 128);
+    });
+    observer.observe(lifeline);
+    return () => observer.disconnect();
+  }, []);
 
   const phoneHref = `tel:${siteInfo.phoneLabel.replace(/[^+\d]/g, "")}`;
   const matchesPath = (href: string) => {
@@ -25,7 +49,7 @@ export default function Header() {
   return (
     <>
       {/* Utility bar */}
-      <div className="bg-brand-bright text-white">
+      <div className="relative bg-brand-bright text-white">
         <div className="container-ff flex min-h-10 flex-wrap items-center justify-between gap-x-6 gap-y-1 py-1.5 text-[13px]">
           <div className="flex flex-wrap items-center gap-x-5 gap-y-1">
             <a href={phoneHref} className="inline-flex items-center gap-2 font-semibold hover:text-cream-deep">
@@ -54,13 +78,82 @@ export default function Header() {
               </a>
             ))}
           </div>
-
         </div>
+      </div>
+
+      <div
+        ref={lifelineRef}
+        className="header-lifeline"
+        style={{ height: "clamp(24px, 2.2vw, 30px)" }}
+        aria-hidden="true"
+      >
+        <svg
+          className="header-lifeline-svg"
+          viewBox={`0 0 ${pulseViewBoxWidth} 128`}
+          fill="none"
+          preserveAspectRatio="none"
+        >
+          <defs>
+            <linearGradient id="header-lifeline-tube-fill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stopColor="#ff7780" />
+              <stop offset="0.16" stopColor="#e51b2c" />
+              <stop offset="0.5" stopColor="#85000d" />
+              <stop offset="0.84" stopColor="#d3081b" />
+              <stop offset="1" stopColor="#ff6671" />
+            </linearGradient>
+            <clipPath id="header-lifeline-pulse-clip">
+              <rect x="0" y="10" width={pulseViewBoxWidth} height="108" />
+            </clipPath>
+            <filter id="header-lifeline-pulse-glow" x="-10%" y="-50%" width="120%" height="200%">
+              <feGaussianBlur stdDeviation="3" />
+            </filter>
+          </defs>
+          <g className="header-lifeline-tubes">
+            <rect
+              x="0"
+              y="8"
+              width={pulseViewBoxWidth}
+              height="112"
+              rx="4"
+              fill="url(#header-lifeline-tube-fill)"
+              stroke="#e60016"
+              strokeWidth="2"
+            />
+            <path d={`M8 12H${pulseViewBoxWidth - 8}`} stroke="#ffd1d4" strokeOpacity="0.55" strokeWidth="1.25" />
+            <path d={`M8 116H${pulseViewBoxWidth - 8}`} stroke="#51000a" strokeOpacity="0.8" strokeWidth="1.5" />
+          </g>
+          <g clipPath="url(#header-lifeline-pulse-clip)">
+            <g className="header-lifeline-track">
+              <g filter="url(#header-lifeline-pulse-glow)" opacity="0.65">
+                <path id="header-lifeline-beat-glow" d={`M0 64H168C188 64 192 48 212 48C232 48 236 64 254 64H270L284 72L302 20L322 108L340 64H368C390 64 396 44 420 44C444 44 450 64 472 64H${pulsePeriod}`} stroke="#fff" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" />
+                <use href="#header-lifeline-beat-glow" x={-pulsePeriod} />
+                {Array.from({ length: Math.ceil(pulseViewBoxWidth / pulsePeriod) }, (_, index) => (
+                  <use key={index} href="#header-lifeline-beat-glow" x={(index + 1) * pulsePeriod} />
+                ))}
+              </g>
+              <path id="header-lifeline-beat" d={`M0 64H168C188 64 192 48 212 48C232 48 236 64 254 64H270L284 72L302 20L322 108L340 64H368C390 64 396 44 420 44C444 44 450 64 472 64H${pulsePeriod}`} stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+              <use href="#header-lifeline-beat" x={-pulsePeriod} />
+              {Array.from({ length: Math.ceil(pulseViewBoxWidth / pulsePeriod) }, (_, index) => (
+                <use key={index} href="#header-lifeline-beat" x={(index + 1) * pulsePeriod} />
+              ))}
+              {!reduceMotion && (
+                <animateTransform
+                  attributeName="transform"
+                  type="translate"
+                  from="0 0"
+                  to={`-${pulsePeriod} 0`}
+                  dur="3.8s"
+                  repeatCount="indefinite"
+                />
+              )}
+            </g>
+          </g>
+        </svg>
       </div>
 
       {/* Floating header card */}
       <header className="sticky top-0 z-50">
-        <div className="py-2.5">
+        <div className="pt-0 pb-2.5">
           <div className="container-ff">
             <div className="rounded-[24px] border border-line/70 bg-white/92 px-4 py-2.5 shadow-[0_16px_38px_rgba(7,18,42,0.08)] backdrop-blur-md sm:px-5">
             <div className="flex items-center justify-between gap-5">

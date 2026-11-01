@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef } from "react";
 
 const numberPattern = /^([^0-9]*)([\d,]+(?:\.\d+)?)(.*)$/;
 const animationDuration = 3200;
@@ -26,34 +26,37 @@ export default function AnimatedNumber({
   className?: string;
 }) {
   const ref = useRef<HTMLSpanElement>(null);
-  const parsed = parseNumber(value);
+  const parsed = useMemo(() => parseNumber(value), [value]);
   const target = parsed?.target;
-  const [count, setCount] = useState(target ?? 0);
 
   useEffect(() => {
-    if (target === undefined) return;
+    if (target === undefined || !parsed) return;
 
     const element = ref.current;
     if (!element) return;
+    const textNode = element.firstChild;
+    if (!textNode || textNode.nodeType !== Node.TEXT_NODE) return;
 
     let frame = 0;
     let hasStarted = false;
+    const formatter = new Intl.NumberFormat("en-US", {
+      minimumFractionDigits: parsed.decimals,
+      maximumFractionDigits: parsed.decimals,
+    });
 
     const startAnimation = () => {
       if (hasStarted) return;
       hasStarted = true;
-      window.cancelAnimationFrame(frame);
-      setCount(0);
       const startTime = performance.now();
       const animate = (now: number) => {
         const progress = Math.min((now - startTime) / animationDuration, 1);
         const easedProgress = 1 - (1 - progress) ** 3;
-        setCount(target * easedProgress);
+        textNode.nodeValue = `${parsed.prefix}${formatter.format(target * easedProgress)}${parsed.suffix}`;
 
         if (progress < 1) {
           frame = window.requestAnimationFrame(animate);
         } else {
-          setCount(target);
+          textNode.nodeValue = value;
         }
       };
       frame = window.requestAnimationFrame(animate);
@@ -63,11 +66,7 @@ export default function AnimatedNumber({
       ([entry]) => {
         if (entry.isIntersecting) {
           startAnimation();
-        } else {
-          hasStarted = false;
-          window.cancelAnimationFrame(frame);
-          frame = 0;
-          setCount(target);
+          observer.unobserve(element);
         }
       },
       { threshold: 0.1 },
@@ -78,22 +77,13 @@ export default function AnimatedNumber({
       observer.disconnect();
       window.cancelAnimationFrame(frame);
     };
-  }, [target, value]);
+  }, [parsed, target, value]);
 
   if (!parsed) return <span className={className}>{value}</span>;
 
-  const formattedCount = count.toLocaleString("en-US", {
-    minimumFractionDigits: parsed.decimals,
-    maximumFractionDigits: parsed.decimals,
-  });
-
   return (
-    <span ref={ref} className={className} aria-label={value}>
-      <span aria-hidden="true">
-        {parsed.prefix}
-        {formattedCount}
-        {parsed.suffix}
-      </span>
+    <span className={className} aria-label={value}>
+      <span ref={ref} aria-hidden="true">{value}</span>
     </span>
   );
 }
